@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { useEffect, useState, type ComponentType } from 'react';
 import TopNav from './sections/TopNav';
 import Hero from './sections/Hero';
 import Noise from './components/reactbits/Noise/Noise';
@@ -10,9 +10,7 @@ import { useReducedMotion } from './lib/hooks';
 const loadMethod = () => import('./sections/parts/PartMethod');
 const loadEvidence = () => import('./sections/parts/PartEvidence');
 const loadClosing = () => import('./sections/parts/PartClosing');
-const PartMethod = lazy(loadMethod);
-const PartEvidence = lazy(loadEvidence);
-const PartClosing = lazy(loadClosing);
+type Parts = { method?: ComponentType; evidence?: ComponentType; closing?: ComponentType };
 
 const Hold = ({ h }: { h: string }) => <div style={{ minHeight: h }} aria-hidden />;
 
@@ -20,9 +18,17 @@ export default function App() {
   const { theme } = useTheme();
   const reduce = useReducedMotion();
 
+  // Each part is shown with an ordinary state update once its chunk has arrived. React.lazy would retry the
+  // suspended render at retry priority, which the hero's per-frame replay keeps interrupting: on a slow machine
+  // the sections below the hero then never appeared.
+  const [parts, setParts] = useState<Parts>({});
   useEffect(() => {
-    loadMethod().then(loadEvidence).then(loadClosing);
+    const put = (key: keyof Parts) => (m: { default: ComponentType }) => setParts((p) => ({ ...p, [key]: m.default }));
+    loadMethod().then(put('method'));
+    loadEvidence().then(put('evidence'));
+    loadClosing().then(put('closing'));
   }, []);
+  const { method: PartMethod, evidence: PartEvidence, closing: PartClosing } = parts;
 
   // honour a #hash in the URL once the lazy sections exist
   useEffect(() => {
@@ -48,15 +54,9 @@ export default function App() {
       <GradualBlur target="page" position="bottom" height="4.5rem" strength={1.6} layers={5} curve="bezier" exponential opacity={1} autoHide zIndex={45} />
       <main>
         <Hero />
-        <Suspense fallback={<Hold h="400vh" />}>
-          <PartMethod />
-        </Suspense>
-        <Suspense fallback={<Hold h="400vh" />}>
-          <PartEvidence />
-        </Suspense>
-        <Suspense fallback={<Hold h="300vh" />}>
-          <PartClosing />
-        </Suspense>
+        {PartMethod ? <PartMethod /> : <Hold h="400vh" />}
+        {PartEvidence ? <PartEvidence /> : <Hold h="400vh" />}
+        {PartClosing ? <PartClosing /> : <Hold h="300vh" />}
       </main>
     </>
   );
