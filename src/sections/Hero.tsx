@@ -1,13 +1,11 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { File02Icon, GithubIcon, PlayCircleIcon, QuoteDownIcon } from '@hugeicons/core-free-icons';
 import VariableProximity from '@/components/reactbits/VariableProximity/VariableProximity';
-import Particles from '@/components/reactbits/Particles/Particles';
 import GlareHover from '@/components/reactbits/GlareHover/GlareHover';
 import Magnet from '@/components/reactbits/Magnet/Magnet';
 import CircularText from '@/components/reactbits/CircularText/CircularText';
 import SplitText from '@/components/reactbits/SplitText/SplitText';
 import JourneyMap from '@/components/viz/JourneyMap';
-import LazyMount from '@/components/ui/LazyMount';
 import Icon from '@/components/ui/Icon';
 import { Container } from '@/components/ui/Layout';
 import { BrandMark, LineBadge } from '@/components/ui/Line';
@@ -17,17 +15,6 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { scrollToId, useReducedMotion } from '@/lib/hooks';
 import logoLight from '@/assets/brand/infrec.webp';
 import logoDark from '@/assets/brand/infrec-dark.webp';
-
-// the particles fly in on the first visit only, not each time LazyMount brings the hero back
-let introPlayed = false;
-function HeroParticles(props: React.ComponentProps<typeof Particles>) {
-  const [intro] = useState(() => {
-    const first = !introPlayed;
-    introPlayed = true;
-    return first;
-  });
-  return <Particles {...props} intro={intro} />;
-}
 
 const HERO_EPISODE = EPISODES[0]; // "Put the bowl on the stove", seed 18: the paper's Figure 2 episode
 
@@ -62,24 +49,7 @@ export default function Hero() {
   const dark = theme === 'dark';
 
   return (
-    <header id="top" className="relative isolate overflow-hidden pt-[84px]">
-      {/* the three lines' colours drifting over the first screen; the cursor pushes them aside, a click sends a ripple.
-          Capped at one screen: on a phone the hero is several screens tall and would thin the field out to nothing */}
-      <LazyMount className="absolute inset-x-0 top-0 -z-10 h-[min(100%,max(100svh,760px))]" margin="0px">
-        <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_50%,transparent)]">
-          <HeroParticles
-            particleColors={dark ? [t.s2g, t.s1g, t.s0g, '#ffffff'] : [t.s2, t.s1, t.s0]}
-            particleCount={440}
-            particleBaseSize={170}
-            depthOfField={0.6}
-            glow={dark ? 0.6 : 0.3}
-            opacity={dark ? 0.9 : 0.85}
-            hoverEffect="repel"
-            hoverRadius={150}
-          />
-        </div>
-      </LazyMount>
-
+    <header id="top" className="relative overflow-hidden pt-[84px]">
       <Container wide>
         <div className="grid items-center gap-x-12 gap-y-6 lg:grid-cols-[auto_minmax(0,1fr)]">
           <div>
