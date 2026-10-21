@@ -12,6 +12,7 @@ import { scrollToId, useMediaQuery } from '@/lib/hooks';
  * section, the line filled up to where the reader is.
  */
 export const STOPS = [
+  { id: 'film', label: 'Film' },
   { id: 'overview', label: 'Overview' },
   { id: 'problem', label: 'Problem' },
   { id: 'runtime', label: 'Runtime' },
@@ -109,14 +110,14 @@ export default function TopNav() {
           </a>
 
           {wide ? (
-            <nav aria-label="Sections" className="relative mx-auto h-[46px] flex-1 max-w-[880px]">
+            <nav aria-label="Sections" className="relative mx-auto h-[46px] flex-1 max-w-[940px]">
               {/* the line */}
-              <div className="absolute left-[calc(100%/16)] right-[calc(100%/16)] top-[12px] h-[5px] rounded-full bg-rule" />
+              <div className="absolute top-[12px] h-[5px] rounded-full bg-rule" style={{ left: `calc(100% / ${2 * n})`, right: `calc(100% / ${2 * n})` }} />
               <div
-                className="absolute left-[calc(100%/16)] top-[12px] h-[5px] rounded-full bg-s0 transition-[width] duration-150"
-                style={{ width: `calc((100% - 100% / 8) * ${fill})` }}
+                className="absolute top-[12px] h-[5px] rounded-full bg-s0 transition-[width] duration-150"
+                style={{ left: `calc(100% / ${2 * n})`, width: `calc((100% - 100% / ${n}) * ${fill})` }}
               />
-              <ol className="relative grid h-full grid-cols-8">
+              <ol className="relative grid h-full" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
                 {STOPS.map((s, i) => {
                   const passed = i < p - 0.02;
                   const here = i === current;

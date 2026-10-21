@@ -37,6 +37,8 @@ Asset paths are relative (`base: './'`), so the same build works at a sub-path o
 | Most numbers on the page (Tables 1, 3–6, 9–14, 17 and 18 of the arXiv version; a few are written in the sections) | `src/data/results.ts` |
 | Test episodes, RoboTwin decisions, G1 and BEHAVIOR frames | `src/data/gen/*.ts` (generated) |
 | Colours (three lines: S2 brain, S1 router, S0 skills) | `src/index.css` and `src/theme/tokens.ts` |
+| The film: player, chapters, file names | `src/components/film/FilmPlayer.tsx`, `src/data/film.ts` |
+| The film's videos and posters | `public/film/*.mp4`, `src/assets/film/poster-*.webp` (made in `../film`) |
 
 Links that are not public yet (`arxiv`, `pdf`, `code`, `video` in `src/data/paper.ts`) are empty; the page then
 shows the button with a "soon" badge. Fill them in and push.
@@ -44,6 +46,14 @@ shows the button with a "soon" badge. Fill them in and push.
 `src/data/gen/` and `src/assets/` were generated from the raw run records (test episodes of the judge-gated
 router on LIBERO-Pro, RoboTwin 2.0 decisions, BEHAVIOR-1K and Unitree G1 frames) by a script that lives with those
 records, outside this repository; edit the generated files only by regenerating them.
+
+## The film
+
+The section after the hero plays a 108-second film of the paper, made in `../film` (see its README). It comes in a
+light and a dark version that follow the page theme; the switch in the player's bar overrides it, and switching keeps
+the place. Each version is HEVC at 60 fps (Safari, Chrome, Edge) with an H.264 file at 30 fps for other browsers; the
+player picks one with `canPlayType` and downloads nothing until play is pressed. The single-file build cannot carry
+the videos, so it streams them from the published site.
 
 ## Notes
 

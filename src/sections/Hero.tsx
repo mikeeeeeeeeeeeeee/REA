@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { File02Icon, GithubIcon, PlayCircleIcon, QuoteDownIcon } from '@hugeicons/core-free-icons';
+import { File02Icon, FilmRoll01Icon, GithubIcon, PlayCircleIcon, QuoteDownIcon } from '@hugeicons/core-free-icons';
 import VariableProximity from '@/components/reactbits/VariableProximity/VariableProximity';
 import GlareHover from '@/components/reactbits/GlareHover/GlareHover';
 import Magnet from '@/components/reactbits/Magnet/Magnet';
@@ -29,7 +29,7 @@ function Pill({ href, icon, children, onClick }: { href: string; icon: React.Rea
           onClick();
         }
       }}
-      target={href ? '_blank' : undefined}
+      target={href && !onClick ? '_blank' : undefined}
       rel="noreferrer"
       aria-disabled={disabled || undefined}
       title={disabled ? 'Available soon' : undefined}
@@ -143,6 +143,9 @@ export default function Hero() {
                   </a>
                 </GlareHover>
               </Magnet>
+              <Pill href="#film" onClick={() => scrollToId('film')} icon={<Icon icon={FilmRoll01Icon} size={17} />}>
+                Watch the film
+              </Pill>
               <Pill href={LINKS.code} icon={<Icon icon={GithubIcon} size={17} />}>
                 Code
               </Pill>
