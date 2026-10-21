@@ -1,6 +1,6 @@
 export type Verdict = 'done' | 'not_done';
 
-/** One held-out LIBERO-Pro episode, exactly as the judge-gated router logged it. */
+/** One LIBERO-Pro test episode, exactly as the judge-gated router logged it. */
 export type Episode = {
   id: string;
   suite: string;

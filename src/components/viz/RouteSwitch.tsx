@@ -6,7 +6,7 @@ import { EPISODES } from '@/data/gen/episodes';
 /**
  * The router as a set of points (a railway switch). For each task, route memory's development
  * evidence throws the switch to Fix or Evo before the skill train arrives; nothing waits.
- * Evidence: the route records of held-out episodes on this page.
+ * Evidence: the route records of test episodes on this page.
  */
 const CASES = ['stove-23', 'butter-21', 'bowl-stove-18'].map((id) => {
   const e = EPISODES.find((x) => x.id === id)!;

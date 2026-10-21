@@ -206,7 +206,7 @@ function SkillFeed() {
       <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.12)_0_1px,transparent_1px_3px)] mix-blend-multiply" />
       <div className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-black/55 px-2.5 py-1 text-[11.5px] font-[650] text-white backdrop-blur-sm">
         <span className="h-2 w-2 rounded-full bg-[#ff4d5e]" style={{ animation: 'rea-blink 1.2s ease-in-out infinite' }} />
-        RoboTwin 2.0, held-out scene
+        RoboTwin 2.0, test scene
       </div>
       <div className="tabular absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[11.5px] font-[650] text-white/90 backdrop-blur-sm">
         decision {step.step + 1} / {scene.decisions}

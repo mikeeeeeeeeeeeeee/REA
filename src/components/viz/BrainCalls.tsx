@@ -10,7 +10,7 @@ import { buildTimeline, fmtInt, nameOf, stateAt } from '@/lib/episode';
  * The brain as a line with almost no service. The skill train runs its own closed loop (one tick
  * per hundred control steps, the line being the episode's step budget) and meets the brain only
  * where a skill returns: one interchange per run, where the brain looks and answers.
- * Steps, skills and verdicts are the run logs of held-out episodes shown elsewhere on this page.
+ * Steps, skills and verdicts are the run logs of test episodes shown elsewhere on this page.
  */
 const W = 400;
 const H = 250;
@@ -97,7 +97,7 @@ export default function BrainCalls() {
         className="h-full w-full"
         preserveAspectRatio="xMidYMid meet"
         role="img"
-        aria-label={`“${ep.instruction}”: ${fmtInt(ep.steps)} control steps, and the brain was asked ${ep.judges.length} times, once per returning skill`}
+        aria-label={`“${ep.instruction}”: ${fmtInt(ep.steps)} control steps, and the brain was asked ${ep.judges.length} ${ep.judges.length === 1 ? 'time' : 'times'}, once per returning skill`}
       >
         <defs>
           <pattern id={`bc-grid-${uid}`} width="20" height="20" patternUnits="userSpaceOnUse">

@@ -6,7 +6,7 @@ import { EPISODES } from '@/data/gen/episodes';
 import { nameOf } from '@/lib/episode';
 
 /**
- * More real journeys: every held-out episode below was logged by the judge-gated router,
+ * More real journeys: every test episode below was logged by the judge-gated router,
  * one per kind of trip, from the common one-stop case to the full ladder.
  */
 const ORDER = ['wine-rack-25', 'bbq-2', 'stove-23', 'tomato-2', 'bowl-cabinet-2', 'butter-21'];
@@ -22,8 +22,8 @@ export default function Episodes() {
         <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end">
           <SectionTitle>Ride a few more episodes</SectionTitle>
           <p className="lede">
-            Six more held-out LIBERO-Pro episodes from the same run. Most trips need one stop: the first skill succeeds, the judge says done and
-            the router stops. The rest show what silent failures look like, and how the ladder recovers from them.
+            Six more LIBERO-Pro test episodes from the same run. In the simplest trips the first skill succeeds, the judge says done and the
+            router stops; the others show what silent failures look like, and how the ladder recovers from them.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export default function Episodes() {
             <motion.div key={ep.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35 }}>
               <JourneyMap episode={ep} />
               <p className="mt-5 text-[14.5px] leading-[1.6] text-ink-3">
-                <b className="font-[700] text-ink">{ep.instruction}</b>, {ep.suite.replace('libero_', '').replace('_', ' ')}, held-out seed {ep.seed}. {ep.blurb}{' '}
+                <b className="font-[700] text-ink">{ep.instruction}</b>, {ep.suite.replace('libero_', '').replace('_', ' ')}, test seed {ep.seed}. {ep.blurb}{' '}
                 Route memory picked {nameOf(ep.route.choice)} because of{' '}
                 {ep.route.reason === 'higher_dev_success_rate' ? 'its higher development success' : 'a tie in development success, broken by fewer steps'}.
               </p>

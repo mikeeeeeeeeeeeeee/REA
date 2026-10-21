@@ -51,7 +51,7 @@ export default function Router() {
         <div className="mt-20 grid items-start gap-x-14 gap-y-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
           <ModuleHead n={1} name="route memory" title="Dispatch without asking the brain">
             <p>
-              Before any held-out episode, the router replays each candidate skill on development episodes, with seeds disjoint from the test
+              Before any test episode, the router replays each candidate skill on development episodes, with seeds disjoint from the test
               seeds, and stores its success rate and mean steps. At test time the first skill is a lookup: <b>highest success, ties broken by
               fewer steps</b>.
             </p>
@@ -94,10 +94,10 @@ export default function Router() {
               <p className="text-[13.5px] font-[700] text-ink [font-stretch:92%]">Why it helps even though it is noisy</p>
               <CalRow label="accuracy, with the first frame" v={frozen.acc} />
               <CalRow label="accuracy, current frame only" v={noInitial.acc} muted />
-              <CalRow label="done precision, held-out LIBERO-Pro" v={JUDGE.confusion.libero.precision} />
+              <CalRow label="done precision, LIBERO-Pro test episodes" v={JUDGE.confusion.libero.precision} digits={3} />
               <p className="pt-1 text-[13px] leading-snug text-ink-3">
-                Calibrated on {JUDGE.labels} development labels before any held-out run. Its done is reliable, and re-running a finished task
-                rarely undoes it: re-runs rescue 24% of failed first runs and undo 5% of successes on the matched subset.
+                Calibrated on {JUDGE.labels} development labels before any test run. Its done is reliable, and re-running a finished task
+                rarely undoes it: by a proxy attribution, re-runs rescue about 24% of failed first runs and undo 5% of successes on the matched subset.
               </p>
             </div>
           </div>
@@ -158,7 +158,7 @@ function EvidenceBar({ label, k, n, win }: { label: string; k: number; n: number
   );
 }
 
-function CalRow({ label, v, muted = false }: { label: string; v: number; muted?: boolean }) {
+function CalRow({ label, v, muted = false, digits = 2 }: { label: string; v: number; muted?: boolean; digits?: number }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_120px_44px] items-center gap-3">
       <span className="text-[13.5px] text-ink-2">{label}</span>
@@ -172,7 +172,7 @@ function CalRow({ label, v, muted = false }: { label: string; v: number; muted?:
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
-      <span className="tabular text-right text-[13.5px] font-[700] text-ink">{v.toFixed(2)}</span>
+      <span className="tabular text-right text-[13.5px] font-[700] text-ink">{v.toFixed(digits)}</span>
     </div>
   );
 }

@@ -11,7 +11,7 @@ import { useNearViewport, useReducedMotion } from '@/lib/hooks';
 import { useTheme } from '@/theme/ThemeProvider';
 
 /**
- * The judge gate at work: real judge calls from held-out episodes. The judge sees the
+ * The judge gate at work: real judge calls from test episodes. The judge sees the
  * episode's first frame, the frame after the skill returned and the instruction, and answers
  * done or not_done with a short reason. Everything shown is from the run logs.
  */
@@ -79,7 +79,7 @@ export default function JudgeCheckpoint() {
 
       <div className="p-5 sm:p-6">
         <p className="text-[13px] font-[600] text-ink-3">
-          {ep.instruction}, held-out seed {ep.seed}. {nameOf(run.which)} returned after {run.steps.toLocaleString('en-US')} steps,{' '}
+          {ep.instruction}, test seed {ep.seed}. {nameOf(run.which)} returned after {run.steps.toLocaleString('en-US')} steps,{' '}
           {run.exception ? `exception: ${run.exception}` : 'no exception'}.
         </p>
 

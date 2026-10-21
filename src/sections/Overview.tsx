@@ -8,7 +8,7 @@ import { useSeenOnce } from '@/lib/hooks';
 
 /** the headline results, as stations along REA's own line (S1) */
 const STOPS = [
-  { value: 95.9, decimals: 1, suffix: '%', label: 'success on 3,000 held-out LIBERO-Pro episodes', vs: 'best skill author alone: 94.7%' },
+  { value: 95.9, decimals: 1, suffix: '%', label: 'success on 3,000 LIBERO-Pro test episodes', vs: 'best skill author alone: 94.7%' },
   { value: 25, decimals: 0, prefix: '−', suffix: '%', label: 'control steps per success', vs: '1,003 against 1,343' },
   { value: 17, decimals: 0, prefix: '−', suffix: '%', label: 'control time per episode', vs: '9.96 s against 12.04 s' },
   { value: 3.1, decimals: 1, prefix: '+', suffix: ' pp', label: 'from the judge gate where skills fail silently', vs: '+15.3 pp on a failure-heavy subset' },
@@ -19,7 +19,7 @@ const CONTRIBUTIONS = [
   {
     line: 's0' as const,
     title: 'One contract for brains and skills',
-    body: 'A three-level runtime whose contract admits agent-written programs, VLA policies and whole-body controllers under one evaluation protocol, from simulators to a real humanoid.',
+    body: 'A three-level runtime that unifies agents, VLAs and program skills under one contract and evaluation protocol, across simulated and real embodiments.',
   },
   {
     line: 's1' as const,
@@ -29,7 +29,7 @@ const CONTRIBUTIONS = [
   {
     line: 's2' as const,
     title: 'An aligned study of where the brain should sit',
-    body: 'More than 30,000 held-out episodes on identical tasks, seeds, initial states and budgets: ahead of time and at skill returns, the brain helps; inside the control loop, it only adds waiting.',
+    body: 'More than 30,000 test episodes on identical tasks, seeds, initial states and budgets: route memory beats every skill author alone and gives the fastest arm; a judge at skill returns helps where skills fail silently, at extra time; inside the control loop, the brain only adds waiting.',
   },
 ];
 

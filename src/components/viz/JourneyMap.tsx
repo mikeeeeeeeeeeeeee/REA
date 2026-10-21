@@ -7,7 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import type { Episode } from '@/data/types';
 
 /**
- * The hero figure: one real held-out episode drawn as a transit map.
+ * The hero figure: one real test episode drawn as a transit map.
  *   S2 (orange) the brain, S1 (purple) the router, S0 (blue) the skills.
  * Stations on S0 are the camera frames at each skill boundary. The skill train runs every
  * segment end to end; the brain only calls at interchanges, after a skill has returned.
@@ -94,7 +94,7 @@ function MapSvg({ episode, s }: { episode: Episode; s: S }) {
   ];
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible" role="img" aria-label={`Held-out episode “${episode.instruction}” as a line map: ${episode.runs.map((x) => nameOf(x.which)).join(', ')}; the judge answered ${episode.judges.map((j) => j.verdict).join(', ')}`}>
+    <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible" role="img" aria-label={`Test episode “${episode.instruction}” as a line map: ${episode.runs.map((x) => nameOf(x.which)).join(', ')}; the judge answered ${episode.judges.map((j) => j.verdict).join(', ')}`}>
       <defs>
         {XS.map((_, i) => (
           <clipPath key={i} id={`jm-clip-${uid}-${i}`}>

@@ -6,14 +6,14 @@ import { useTheme } from '@/theme/ThemeProvider';
 
 /**
  * Route memory as a departure board: for each task, the development evidence for its two
- * candidate skills and the route the router will take. Data: the paper's Table 12 (matched
+ * candidate skills and the route the router will take. Data: the paper's Table 11 (matched
  * subset, development seeds 51-60).
  */
 export const ROUTES = [
   { key: 'GS-drawer', task: 'OPEN DRAWER, PUT BOWL', fix: [1, 10], evo: [10, 10], first: 'EVO', ladder: 'EVO FIX EVO', why: 'higher development success' },
   { key: 'GT-drawer', task: 'DRAWER, CREAM CHEESE', fix: [1, 10], evo: [1, 10], first: 'FIX', ladder: 'FIX EVO FIX', why: 'a tie, broken by fewer steps' },
   { key: 'OT-butter', task: 'BUTTER INTO BASKET', fix: [0, 10], evo: [3, 10], first: 'EVO', ladder: 'EVO FIX EVO', why: 'higher development success' },
-  { key: 'SS-between', task: 'BOWL BETWEEN PLATES', fix: [1, 10], evo: [10, 10], first: 'EVO', ladder: 'EVO FIX EVO', why: 'higher development success' },
+  { key: 'SS-between', task: 'BETWEEN PLATE, RAMEKIN', fix: [1, 10], evo: [10, 10], first: 'EVO', ladder: 'EVO FIX EVO', why: 'higher development success' },
   { key: 'SS-center', task: 'BOWL FROM TABLE CENTER', fix: [6, 20], evo: null, first: 'FIX', ladder: 'FIX FIX', why: 'the only distinct skill' },
   { key: 'SS-ramekin', task: 'BOWL ON RAMEKIN', fix: [4, 10], evo: [2, 10], first: 'FIX', ladder: 'FIX EVO FIX', why: 'higher development success' },
 ] as const;

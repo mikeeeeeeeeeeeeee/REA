@@ -16,7 +16,7 @@ export function wilson(k: number, n: number, z = 1.96): [number, number] {
 export const HEADLINE = {
   success: 95.9,
   bestAuthor: 94.7,
-  heldOut: 3000,
+  testEpisodes: 3000,
   tasks: 60,
   fewerSteps: 25,
   lessTime: 17,
@@ -38,7 +38,7 @@ export type Arm = {
   note?: string;
 };
 
-/** Table 1: LIBERO-Pro full set, 60 tasks × 50 held-out seeds (3,000 episodes per arm). */
+/** Table 1: LIBERO-Pro full set, 60 tasks × 50 test seeds (3,000 episodes per arm). */
 export const TABLE1: Arm[] = [
   { key: 'codex', label: 'Codex + GPT-6', group: 'single', calls: 0, all60: 74.4, aligned37: 81.2, stepsPerSucc: 1470 },
   { key: 'aspire', label: 'ASPIRE Fix', group: 'single', calls: 0, all60: 65.1, aligned37: 71.9, stepsPerSucc: 1566, note: '59 / 36 tasks' },
@@ -62,8 +62,6 @@ export const SPEED = [
 /** Table 4 / Figure 6: where should System 2 sit? Seeds 1–10, 600 episodes per arm, legacy library. */
 export const PLACEMENT = [
   { key: 'offline', where: 'Offline', config: 'REA-M: route memory', calls: 0, s2: 0, success: 91.0, bc: '', kind: 'offline' },
-  { key: 'dispatch', where: 'At dispatch', config: 'Agent picks the first skill', calls: 0.98, s2: 0.63, success: 91.3, bc: '6:4', kind: 'boundary' },
-  { key: 'recovery', where: 'At recovery', config: 'Agent picks escalations', calls: 0.01, s2: 0.01, success: 91.3, bc: '4:2', kind: 'boundary' },
   { key: 'both', where: 'Dispatch + recovery', config: 'REA-A', calls: 0.99, s2: 0.64, success: 91.5, bc: '6:3', kind: 'boundary' },
   { key: 'completion', where: '+ completion judge', config: 'REA-A + agent judge', calls: 4.18, s2: 7.18, success: 91.3, bc: '12:10', kind: 'boundary' },
   { key: 'cap-text', where: 'Caption judge', config: 'Text model reads scene captions', calls: 3.13, s2: 9.57, success: 89.7, bc: '11:19', kind: 'caption' },
@@ -95,7 +93,7 @@ export const AUTHORS_STUDY = [
   },
 ] as const;
 
-/** Table 11 / Figure 5: router ablation on the matched hard subset (6 tasks × 12 seeds = 72 episodes per arm). */
+/** Table 9 / Figure 5: router ablation on the matched hard subset (6 tasks × 12 seeds = 72 episodes per arm). */
 export const ABLATION = [
   { key: 'fix', label: 'Single skill (Fix)', memory: false, gate: '–', k: 21, steps: 4569 },
   { key: 'evo', label: 'Single skill (Evo)', memory: false, gate: '–', k: 40, steps: 2369, best: true },
@@ -123,13 +121,13 @@ export const PER_TASK = {
   ],
 };
 
-/** Table 14: what the judge gate did, episode by episode (proxy for the first run: REA-M). */
+/** Table 13: what the judge gate did, episode by episode (proxy for the first run: REA-M). */
 export const ATTRIBUTION = {
   matched: { rescued: 7, notRescued: 22, survived: 20, harmed: 1, forfeited: 1, kept: 16, variance: 5, n: 72, paired: '+12 / −1', p: '0.003' },
   libero: { rescued: 28, notRescued: 117, survived: 198, harmed: 19, forfeited: 12, kept: 207, variance: 9, n: 590, paired: '+37 / −19', p: '0.022' },
 };
 
-/** Judge calibration (Table 13) and held-out confusion of the final verdict (Appendix B.6). */
+/** Judge calibration (Table 12) and the confusion of the final verdict on test episodes (Appendix B.6). */
 export const JUDGE = {
   calibration: [
     { prompt: 'default', initial: false, acc: 0.671, prec: 0.105, rec: 0.036, latency: 1.6 },
@@ -145,12 +143,12 @@ export const JUDGE = {
   },
 };
 
-/** Figure 7 / Tables 15 and 18: portability. Successes per method. */
+/** Figure 7 / Tables 14 and 17: portability. Successes per method. */
 export const PORTABILITY = [
   {
     key: 'behavior',
     bench: 'BEHAVIOR-1K',
-    detail: '50 held-out episodes, R1Pro in Isaac Sim; vs the Agents SDK agent 7:5, not significant',
+    detail: '50 test episodes, R1Pro in Isaac Sim; vs the Agents SDK agent 7:5, not significant',
     n: 50,
     rows: [
       { key: 'show', label: 'Show-Harness', k: 3 },
@@ -163,7 +161,7 @@ export const PORTABILITY = [
   {
     key: 'robotwin',
     bench: 'RoboTwin 2.0',
-    detail: '200 held-out bimanual scenes, later-night run; side by side with Codex the same night, REA solved 97 vs 75',
+    detail: '200 bimanual test scenes; REA from a later night, Codex from the night they ran side by side, when REA solved 97 vs 75',
     n: 200,
     rows: [
       { key: 'show', label: 'Show-Harness', k: 12 },
@@ -188,7 +186,7 @@ export const PORTABILITY = [
   },
 ];
 
-/** Table 15: BEHAVIOR-1K per task (successes of 10). */
+/** Table 14: BEHAVIOR-1K per task (successes of 10). */
 export const BEHAVIOR_TASKS = {
   tasks: ['trash', 'radio', 'teddy', 'drill', 'camera'],
   rows: [
@@ -200,7 +198,7 @@ export const BEHAVIOR_TASKS = {
   ],
 };
 
-/** Table 19: G1 request latency (medians over 5–8 trials on the robot's Jetson). */
+/** Table 18: G1 request latency (medians over 5–8 trials on the robot's Jetson). */
 export const G1_LATENCY = [
   { stage: 'Original bridge', latency: '≈5 s', value: 5 },
   { stage: 'Fast harness', latency: '1.17–1.9 s', value: 1.5 },

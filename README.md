@@ -34,14 +34,14 @@ Asset paths are relative (`base: './'`), so the same build works at a sub-path o
 | What | File |
 | --- | --- |
 | Title, authors, affiliations, abstract, BibTeX, **links** | `src/data/paper.ts` |
-| Every number on the page (tables 1, 3–6, 10–15, 18, 19) | `src/data/results.ts` |
-| Held-out episodes, RoboTwin decisions, G1 and BEHAVIOR frames | `src/data/gen/*.ts` (generated) |
+| Most numbers on the page (Tables 1, 3–6, 9–14, 17 and 18 of the arXiv version; a few are written in the sections) | `src/data/results.ts` |
+| Test episodes, RoboTwin decisions, G1 and BEHAVIOR frames | `src/data/gen/*.ts` (generated) |
 | Colours (three lines: S2 brain, S1 router, S0 skills) | `src/index.css` and `src/theme/tokens.ts` |
 
 Links that are not public yet (`arxiv`, `pdf`, `code`, `video` in `src/data/paper.ts`) are empty; the page then
 shows the button with a "soon" badge. Fill them in and push.
 
-`src/data/gen/` and `src/assets/` were generated from the raw run records (held-out episodes of the judge-gated
+`src/data/gen/` and `src/assets/` were generated from the raw run records (test episodes of the judge-gated
 router on LIBERO-Pro, RoboTwin 2.0 decisions, BEHAVIOR-1K and Unitree G1 frames) by a script that lives with those
 records, outside this repository; edit the generated files only by regenerating them.
 

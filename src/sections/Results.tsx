@@ -58,8 +58,9 @@ export default function Results() {
         <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end">
           <SectionTitle>Five questions, 30,000 episodes</SectionTitle>
           <p className="lede">
-            Every comparison is paired on identical episodes: the same tasks, seeds, initial states, horizons and budgets, the same frozen skill
-            bytes wherever arms share a library, and one read of the success predicate after the last run.
+            Every simulated comparison runs on identical episodes: the same tasks, seeds, initial states, horizons and budgets, the same frozen
+            skill bytes wherever arms share a library, and one read of the success predicate after the last run. The real-robot trials are judged
+            on site and compared with Fisher exact tests.
           </p>
         </div>
 
@@ -144,7 +145,8 @@ function Q1() {
       value: v,
       kind,
       atLeast: a.atLeast,
-      ci: a.group === 'ceiling' ? undefined : ci(k, n),
+      // the oracle is a ceiling and the random author an expectation: neither is a count with an interval
+      ci: a.group === 'ceiling' || a.key === 'random' ? undefined : ci(k, n),
       note: a.note ?? (a.key === 'rea-m' ? (set === 'all' ? '+1.2 pp over the best author, 86:51 paired, p = 0.004' : '+1.6 pp, 54:25 paired, p = 0.001') : a.group === 'online' ? `${a.calls} model calls per episode` : undefined),
     } satisfies BarRow;
   });
@@ -166,7 +168,7 @@ function Q1() {
       </QHead>
       <div className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
         <ChartFrame
-          title="Held-out success, LIBERO-Pro"
+          title="Success on LIBERO-Pro test episodes"
           sub={`${set === 'all' ? '60 tasks × 50 seeds, 3,000 episodes per arm' : '37 tasks whose pool is exactly these authors’ programs'}; Wilson 95% intervals`}
           legend={<Legend items={[{ kind: 'ours', label: 'REA' }, { kind: 'base', label: 'one skill author alone' }, { kind: 'loop', label: 'brain in the control loop' }, { kind: 'ceiling', label: 'hindsight oracle' }]} />}
           actions={
@@ -188,7 +190,7 @@ function Q1() {
           }
           table={{ head: ['Arm', 'All 60 (%)', 'Aligned 37 (%)', 'Steps / success', 'Calls / ep'], rows: TABLE1.map((a) => [a.label, `${a.atLeast ? '≥' : ''}${a.all60}`, `${a.atLeast ? '≥' : ''}${a.aligned37}`, a.stepsPerSucc?.toLocaleString('en-US') ?? '–', a.calls ?? '–']) }}
         >
-          <HBars rows={rows} max={100} unit="%" ticks={[0, 25, 50, 75, 100]} labelWidth={220} ariaLabel="Held-out success per arm on LIBERO-Pro" />
+          <HBars rows={rows} max={100} unit="%" ticks={[0, 25, 50, 75, 100]} labelWidth={220} ariaLabel="Success per arm on LIBERO-Pro test episodes" />
         </ChartFrame>
         <ChartFrame title="Steps per success" sub="lower is better; the zero-shot harness bar is cut" table={{ head: ['Arm', 'Steps / success'], rows: steps.map((r) => [r.label, r.display ?? r.value]) }}>
           <HBars rows={steps} max={1750} decimals={0} ticks={[0, 500, 1000, 1500]} labelWidth={150} ariaLabel="Control steps per success" />
@@ -208,7 +210,7 @@ function Q2() {
         <p>
           An advisor the router waits for is asked only 1.7 times per episode, yet it leaves the control path idle <b>2.62 s per episode</b>,
           20% of its control time, and wins nothing. Route memory removes the wait at its source: <b>REA-M is the fastest timed arm</b>, 25%
-          faster than the advisor and 17% faster than the best author alone. Both run a control step in 10.3 to 10.4 ms; the gap is the wait.
+          faster than the advisor and 17% faster than the best author alone. Both run a control step in 10.3 to 10.4 ms; of REA-M's 3.37 s lead, 2.62 s is the advisor's wait and 0.75 s comes from 83 fewer control steps.
         </p>
       </QHead>
       <ChartFrame
@@ -395,10 +397,12 @@ function PlacementExplorer() {
         {p.kind === 'loop'
           ? 'As a direct Cartesian policy the brain solves none of the 600 episodes.'
           : p.kind === 'caption'
-            ? 'A completion judge that reads scene captions costs success and seconds on this strong library.'
-            : p.kind === 'boundary'
-              ? 'Asking the agent at boundaries changes success by under a point (all p ≥ 0.51) and adds a selection call.'
-              : 'Route memory: no System 2 call while the episode runs.'}
+            ? 'A completion judge that reads scene captions costs 1.3 to 2.2 points and 7.9 to 9.6 s per episode: on this strong library the exception gate suffices.'
+            : p.key === 'completion'
+              ? 'The agent as a completion judge as well changes success by +0.3 points (12:10) and spends 7.2 s per episode in System 2 calls.'
+              : p.kind === 'boundary'
+                ? 'Asking the agent to pick the skills at dispatch and recovery changes success by +0.5 points (6:3, p = 0.51) and adds a selection call.'
+                : 'Route memory: no System 2 call while the episode runs.'}
       </p>
     </ChartFrame>
   );

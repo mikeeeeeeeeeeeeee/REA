@@ -161,11 +161,11 @@ export default function Hero() {
           <JourneyMap episode={HERO_EPISODE} />
           <figcaption className="mt-5 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 text-[14px] text-ink-3">
             <span className="max-w-[70ch]">
-              <b className="font-[680] text-ink">A real held-out episode, drawn as a line map.</b> “{HERO_EPISODE.instruction}”, LIBERO-Pro seed {HERO_EPISODE.seed}.
+              <b className="font-[680] text-ink">A real test episode, drawn as a line map.</b> “{HERO_EPISODE.instruction}”, LIBERO-Pro seed {HERO_EPISODE.seed}.
               Each station is the camera frame the judge saw; the three verdicts and their reasons are the judge's own words.
             </span>
             <span className="tabular whitespace-nowrap">
-              {HERO_EPISODE.steps.toLocaleString('en-US')} of {HERO_EPISODE.horizon.toLocaleString('en-US')} steps, {HERO_EPISODE.wall} s, replayed {reduce ? '' : 'about 10× faster'}
+              {HERO_EPISODE.steps.toLocaleString('en-US')} of {HERO_EPISODE.horizon.toLocaleString('en-US')} steps, {HERO_EPISODE.wall} s{reduce ? '' : ', skill runs replayed 11× faster'}
             </span>
           </figcaption>
         </figure>

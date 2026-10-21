@@ -56,7 +56,7 @@ export default function LadderBudget({ episodeId = 'tomato-2' }: { episodeId?: s
     <div ref={ref} className="figure-frame overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rule px-5 py-4">
         <p className="text-[15px] font-[720] text-ink [font-stretch:88%]">
-          “{ep.instruction}”, held-out seed {ep.seed}
+          “{ep.instruction}”, test seed {ep.seed}
         </p>
         <p className="label">replayed from the run log</p>
       </div>

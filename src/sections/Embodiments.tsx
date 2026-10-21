@@ -22,7 +22,7 @@ import { useNearViewport, useReducedMotion, useSeenOnce } from '@/lib/hooks';
 export default function Embodiments() {
   const { t, theme } = useTheme();
   const termini = [
-    { image: EPISODES[0].frames[3], title: 'LIBERO-Pro', subtitle: '2,876 of 3,000 held-out episodes, MuJoCo', accent: t.s1, alt: 'LIBERO-Pro: the bowl on the stove' },
+    { image: EPISODES[0].frames[3], title: 'LIBERO-Pro', subtitle: '2,876 of 3,000 test episodes, MuJoCo', accent: t.s1, alt: 'LIBERO-Pro: the bowl on the stove' },
     { image: BEHAVIOR[0].image, title: 'BEHAVIOR-1K', subtitle: '27 of 50, the most of five methods, Isaac Sim', accent: t.s1, alt: 'BEHAVIOR-1K: R1Pro picking up a radio' },
     { image: ROBOTWIN[0].steps[ROBOTWIN[0].steps.length - 1].image, title: 'RoboTwin 2.0', subtitle: '133 of 200 bimanual scenes, SAPIEN', accent: t.s1, alt: 'RoboTwin 2.0: burger and fries on the tray' },
     { image: G1_FRONT[7].image, title: 'Unitree G1', subtitle: '8 of 10 real trials, operator-judged', accent: t.s1, alt: 'Unitree G1 pushing a chair' },
@@ -33,8 +33,8 @@ export default function Embodiments() {
         <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end">
           <SectionTitle>Four termini, one runtime</SectionTitle>
           <p className="lede">
-            Because every backend implements the same contract, moving REA is a matter of a new backend and new skills. Three simulators and a
-            real humanoid, with the router unchanged, and the most episodes solved on each.
+            Because every backend implements the same three-level contract, moving REA is a matter of a new backend and new skills: three
+            simulators and a real humanoid, and the most episodes solved on each.
           </p>
         </div>
 
@@ -66,8 +66,8 @@ export default function Embodiments() {
                 Agents SDK agent, 4 for Codex and 2 for ASPIRE's code-as-policy.
               </p>
               <p>
-                The robot's own service pipelines its brain decisions ahead of the request, so a skill request returns in <b>1.0 to 3.6 ms</b>{' '}
-                instead of about 5 s.
+                A separate service on the robot, without the router, computes brain decisions ahead of the request, so a decision request returns
+                in <b>1.0 to 3.6 ms</b> instead of about 5 s; the motion follows at execution.
               </p>
             </div>
             <LatencyChart />
@@ -85,10 +85,10 @@ export default function Embodiments() {
             <div className="mt-4 space-y-3 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
               <p>
                 RoboTwin 2.0 has no skill library, so a fast reflex model is the System 0 skill and the router hands single decisions to a
-                deliberate model. Left: one held-out scene, decision by decision, with the reflex model's own reasoning.
+                deliberate model. Left: one test scene, decision by decision, with each model's own reasoning.
               </p>
               <p>
-                On BEHAVIOR-1K, a mobile R1Pro has to find and pick up objects in a house; REA ran with the same tools, model and 1,500 s
+                On BEHAVIOR-1K, a mobile R1Pro starts metres from the object it has to find and pick up; REA ran with the same tools, model and 1,500 s
                 budget as an online agent.
               </p>
             </div>
@@ -282,7 +282,7 @@ function RoboTwinReplay() {
             </AnimatePresence>
           </div>
           <p className="mt-auto border-t border-rule pt-3 text-[12.5px] leading-snug text-ink-3">
-            Held-out scene {sc.scene.replace('rt500-', '').replace(/-/g, ' ')}, solved in {sc.decisions} decisions. Text is the model's own reasoning from the run log.
+            Test scene {sc.scene.replace('rt500-', '').replace(/-/g, ' ')}, solved in {sc.decisions} decisions. Text is the model's own reasoning from the run log.
           </p>
         </div>
       </div>
@@ -296,7 +296,7 @@ function BehaviorGrid() {
     <ChartFrame
       className="mt-7"
       title="BEHAVIOR-1K, successes out of 10 per task"
-      sub="held-out instances 1-10, R1Pro, the same model for every method"
+      sub="test instances 1–10, R1Pro, the same model for every method"
       table={{ head: ['Method', ...BEHAVIOR_TASKS.tasks, 'Total'], rows: BEHAVIOR_TASKS.rows.map((r) => [r.label, ...r.values, `${r.values.reduce((a, b) => a + b, 0)}/50`]) }}
     >
       <div className="overflow-x-auto">
