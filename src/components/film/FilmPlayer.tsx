@@ -1,19 +1,26 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import { FullScreenIcon, MinimizeScreenIcon, Moon02Icon, PauseIcon, PlayIcon, RepeatIcon, Sun03Icon, VolumeHighIcon, VolumeMute02Icon } from '@hugeicons/core-free-icons';
 import Icon from '@/components/ui/Icon';
-import { FILM, chapterAt, type FilmVersion } from '@/data/film';
+import { FILMS, FIRST_CUT, chapterAt, lengthOf, type Film, type FilmCut, type FilmVersion } from '@/data/film';
 import { useTheme } from '@/theme/ThemeProvider';
 
 /**
- * The film's player. Its version follows the page theme (or the switch in its own bar); switching mid-film keeps the
- * place and carries on, since both versions share one timeline. The scrubber is a line with a station per chapter.
- * Nothing is downloaded until play is pressed.
+ * The film's player. It plays one of two cuts (full or short, chosen on the poster or in the bar; another cut starts
+ * from its beginning). Its version follows the page theme (or the switch in its own bar); switching mid-film keeps
+ * the place and carries on, since both versions of a cut share one timeline. The scrubber is a line with a station
+ * per chapter. Nothing is downloaded until play is pressed.
  */
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+/** "4 min 35 s" as read aloud: "4 minutes 35 seconds" */
+const spoken = (len: string) =>
+  len.replace(/(\d+) min/, (_, n: string) => `${n} minute${n === '1' ? '' : 's'}`).replace(/(\d+) s$/, (_, n: string) => `${n} second${n === '1' ? '' : 's'}`);
+
+/** whether the cut and version loaded (or on their way) are these */
+const same = (cur: { cut: FilmCut; ver: FilmVersion } | null, cut: FilmCut, ver: FilmVersion) => cur?.cut === cut && cur.ver === ver;
 
 /** the film's own backdrop colours, so the frame never flashes another colour while a version loads */
-const BACKDROP: Record<FilmVersion, string> = { light: '#f4f5f8', dark: '#05070b' };
+const BACKDROP: Record<FilmVersion, string> = { light: '#efede8', dark: '#050608' };
 
 export default function FilmPlayer() {
   const { theme } = useTheme();
@@ -22,13 +29,15 @@ export default function FilmPlayer() {
   useEffect(() => setOverride(null), [theme]);
   const version: FilmVersion = override ?? theme;
   const night = version === 'dark';
+  const [cut, setCut] = useState<FilmCut>(FIRST_CUT);
+  const film = FILMS[cut];
 
   const hevc = useMemo(() => typeof document !== 'undefined' && document.createElement('video').canPlayType('video/mp4; codecs="hvc1.1.6.L123.B0"') !== '', []);
 
   const video = useRef<HTMLVideoElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
-  /** the version loaded, or on its way */
-  const current = useRef<FilmVersion | null>(null);
+  /** the cut and version loaded, or on their way */
+  const current = useRef<{ cut: FilmCut; ver: FilmVersion } | null>(null);
   /** a load in flight: where it will resume and whether it plays (both can still change), and its listener */
   const pending = useRef<{ at: number; play: boolean; on: () => void } | null>(null);
   const [started, setStarted] = useState(false);
@@ -43,13 +52,13 @@ export default function FilmPlayer() {
   const [full, setFull] = useState(false);
   const [hasFrame, setHasFrame] = useState(false);
 
-  /** open a version and resume at `at` (playing if `play`) */
+  /** open a cut's version and resume at `at` (playing if `play`) */
   const open = useCallback(
-    (ver: FilmVersion, at: number, play: boolean) => {
+    (c: FilmCut, ver: FilmVersion, at: number, play: boolean) => {
       const v = video.current;
       if (!v) return;
       if (pending.current) v.removeEventListener('loadedmetadata', pending.current.on);
-      current.current = ver;
+      current.current = { cut: c, ver };
       setFailed(false);
       setBusy(true);
       const on = () => {
@@ -57,7 +66,7 @@ export default function FilmPlayer() {
         const p = pending.current;
         pending.current = null;
         if (!p) return;
-        v.currentTime = Math.min(p.at, FILM.duration - 0.05);
+        v.currentTime = Math.min(p.at, FILMS[c].duration - 0.05);
         if (!p.play) return setBusy(false);
         v.play().catch(() => {
           setPlaying(false);
@@ -66,7 +75,7 @@ export default function FilmPlayer() {
       };
       pending.current = { at, play, on };
       v.addEventListener('loadedmetadata', on);
-      v.src = FILM.src(ver, hevc);
+      v.src = FILMS[c].src(ver, hevc);
       v.load();
     },
     [hevc]
@@ -79,24 +88,47 @@ export default function FilmPlayer() {
       // the big button unmounts once the film starts; keep the focus in the player so its keys still work
       wrap.current?.focus({ preventScroll: true });
       const v = video.current;
-      if (current.current === version && pending.current) {
+      if (same(current.current, cut, version) && pending.current) {
         pending.current.at = at;
         pending.current.play = true;
-      } else if (v && current.current === version && v.readyState >= 1) {
+      } else if (v && same(current.current, cut, version) && v.readyState >= 1) {
         v.currentTime = at;
         v.play().catch(() => setPlaying(false));
-      } else open(version, at, true);
+      } else open(cut, version, at, true);
     },
-    [open, version]
+    [open, cut, version]
   );
 
-  // a different version: keep the place, carry on as before (from where a load still in flight would have resumed)
+  // a different version: keep the place, carry on as before (from where a load still in flight would have resumed);
+  // a different cut: play it from its beginning
   useEffect(() => {
     const v = video.current;
-    if (!v || !started || current.current === version) return;
+    if (!v || !started || same(current.current, cut, version)) return;
     const p = pending.current;
-    open(version, p ? p.at : v.currentTime, p ? p.play : !v.paused);
-  }, [version, started, open]);
+    if (current.current?.cut !== cut) return open(cut, version, 0, true);
+    open(cut, version, p ? p.at : v.currentTime, p ? p.play : !v.paused);
+  }, [cut, version, started, open]);
+
+  // from the poster or the end screen, choosing a cut only selects it; mid-film, the new cut plays from its beginning
+  const chooseCut = (c: FilmCut) => {
+    if (c === cut) return;
+    setCut(c);
+    setTime(0);
+    setHasFrame(false);
+    if (ended) {
+      setEnded(false);
+      setStarted(false);
+    }
+  };
+  // the end of the short cut offers the full one, which then plays at once
+  const next: FilmCut | null = ended && cut === 'short' ? 'full' : null;
+  const playNext = (c: FilmCut) => {
+    wrap.current?.focus({ preventScroll: true });
+    setCut(c);
+    setTime(0);
+    setHasFrame(false);
+    setEnded(false);
+  };
 
   const toggle = useCallback(() => {
     const v = video.current;
@@ -114,14 +146,14 @@ export default function FilmPlayer() {
   const seek = useCallback(
     (t: number) => {
       const v = video.current;
-      const at = clamp(t, 0, FILM.duration - 0.05);
+      const at = clamp(t, 0, film.duration - 0.05);
       setTime(at);
       setEnded(false);
       if (!v || !started) return start(at);
       if (pending.current) pending.current.at = at;
       else v.currentTime = at;
     },
-    [started, start]
+    [started, start, film]
   );
 
   // the playhead moves smoothly while the film plays
@@ -180,7 +212,8 @@ export default function FilmPlayer() {
   }, [muted]);
 
   const showBar = started && (!playing || !idle);
-  const chapter = chapterAt(time);
+  const chapter = chapterAt(film, time);
+  const length = lengthOf(film);
   const glass = night ? 'bg-[rgba(8,10,16,0.58)] text-white' : 'bg-[rgba(255,255,255,0.78)] text-[#0f1218]';
 
   return (
@@ -200,7 +233,7 @@ export default function FilmPlayer() {
         className="absolute inset-0 h-full w-full"
         playsInline
         preload="none"
-        aria-label={`REA, the film (${version} version)`}
+        aria-label={`REA, the film (${film.name.toLowerCase()} cut, ${version} version)`}
         onClick={toggle}
         onPlay={() => {
           setPlaying(true);
@@ -211,7 +244,7 @@ export default function FilmPlayer() {
         onEnded={() => {
           setPlaying(false);
           setEnded(true);
-          setTime(FILM.duration);
+          setTime(film.duration);
         }}
         onWaiting={() => setWaiting(true)}
         onPlaying={() => {
@@ -231,7 +264,7 @@ export default function FilmPlayer() {
       {(['light', 'dark'] as const).map((v) => (
         <img
           key={v}
-          src={FILM.poster[v]}
+          src={film.poster[v]}
           alt=""
           aria-hidden
           draggable={false}
@@ -244,9 +277,16 @@ export default function FilmPlayer() {
       {(!started || ended) && !failed && (
         <button
           type="button"
-          onClick={() => start(0)}
-          className="absolute inset-0 flex items-end justify-end p-3 text-left outline-none sm:justify-start sm:p-7"
-          aria-label={ended ? 'Watch the film again' : 'Play the film, 1 minute 48 seconds, with sound'}
+          onClick={() => (next ? playNext(next) : start(0))}
+          // at the end the bar stays up (to replay or scrub back), so the button sits above it
+          className={`absolute inset-0 flex items-end justify-end p-3 text-left outline-none sm:justify-start sm:p-7 ${ended ? 'pb-[76px] sm:pb-[92px]' : ''}`}
+          aria-label={
+            next
+              ? `Watch the full film, ${spoken(lengthOf(FILMS[next]))}, narrated, with subtitles`
+              : ended
+                ? 'Watch the film again'
+                : `Play the film, ${spoken(length)}, narrated, with subtitles`
+          }
         >
           <span className={`flex items-center gap-3.5 rounded-full p-1.5 backdrop-blur-xl backdrop-saturate-150 transition-transform duration-300 group-hover:-translate-y-0.5 sm:py-2 sm:pl-2 sm:pr-5 ${glass}`}>
             <span
@@ -254,14 +294,21 @@ export default function FilmPlayer() {
                 night ? 'bg-white text-[#0b0d12] shadow-[0_0_40px_rgba(170,120,255,0.45)]' : 'bg-[#0f1218] text-white'
               }`}
             >
-              <Icon icon={ended ? RepeatIcon : PlayIcon} size={24} stroke={2} className={ended ? '' : 'translate-x-[1.5px]'} />
+              <Icon icon={ended && !next ? RepeatIcon : PlayIcon} size={24} stroke={2} className={ended && !next ? '' : 'translate-x-[1.5px]'} />
             </span>
             <span className="hidden leading-tight sm:block">
-              <span className="block text-[17px] font-[740] [font-stretch:90%]">{ended ? 'Watch again' : 'Play the film'}</span>
-              <span className="block text-[13px] font-[560] opacity-70">{ended ? 'from the start' : '1 min 48 s, with sound'}</span>
+              <span className="block text-[17px] font-[740] [font-stretch:90%]">{next ? 'Watch the full film' : ended ? 'Watch again' : 'Play the film'}</span>
+              <span className="block text-[13px] font-[560] opacity-70">{next ? `${lengthOf(FILMS[next])}, every part explained` : ended ? 'from the start' : `${length}, narrated`}</span>
             </span>
           </span>
         </button>
+      )}
+
+      {/* before the film and after it: which cut */}
+      {(!started || ended) && !failed && (
+        <div className={`absolute right-3 top-3 rounded-full p-1 backdrop-blur-xl backdrop-saturate-150 sm:right-5 sm:top-5 ${glass}`}>
+          <CutSwitch cut={cut} night={night} onChange={chooseCut} long />
+        </div>
       )}
 
       {failed && (
@@ -289,10 +336,13 @@ export default function FilmPlayer() {
             <Icon icon={playing ? PauseIcon : PlayIcon} size={19} stroke={2} />
           </BarButton>
           <span className="hidden w-[92px] shrink-0 text-[13px] font-[600] tabular-nums opacity-80 sm:block">
-            {fmt(time)} / {fmt(FILM.duration)}
+            {fmt(time)} / {fmt(film.duration)}
           </span>
-          <Scrubber time={time} night={night} onSeek={seek} />
+          <Scrubber film={film} time={time} night={night} onSeek={seek} />
           <span className="hidden w-[150px] shrink-0 truncate text-[13px] font-[650] [font-stretch:92%] lg:block">{chapter.title}</span>
+          <div className="hidden sm:block">
+            <CutSwitch cut={cut} night={night} onChange={chooseCut} />
+          </div>
           <VersionSwitch version={version} night={night} onChange={(v) => setOverride(v === theme ? null : v)} />
           <BarButton label={muted ? 'Unmute' : 'Mute'} onClick={() => setMuted((m) => !m)}>
             <Icon icon={muted ? VolumeMute02Icon : VolumeHighIcon} size={19} stroke={1.8} />
@@ -311,6 +361,35 @@ function BarButton({ label, onClick, children }: { label: string; onClick: () =>
     <button type="button" onClick={onClick} aria-label={label} title={label} className="grid h-9 w-9 shrink-0 place-items-center rounded-full transition-colors hover:bg-current/10">
       {children}
     </button>
+  );
+}
+
+/** full or short cut; the active one is filled. `long` labels each with its length (from small screens up) */
+function CutSwitch({ cut, night, onChange, long = false }: { cut: FilmCut; night: boolean; onChange: (c: FilmCut) => void; long?: boolean }) {
+  return (
+    <div role="radiogroup" aria-label="Film cut" className={`flex shrink-0 items-center rounded-full p-[3px] ${night ? 'bg-white/10' : 'bg-black/[0.06]'}`}>
+      {(['full', 'short'] as const).map((c) => {
+        const on = c === cut;
+        const f = FILMS[c];
+        return (
+          <button
+            key={c}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            aria-label={`${f.name} film, ${lengthOf(f)}`}
+            title={`${f.name} film, ${lengthOf(f)}`}
+            onClick={() => onChange(c)}
+            className={`h-[30px] rounded-full px-3 text-[12.5px] font-[680] tabular-nums [font-stretch:92%] transition-colors ${
+              on ? (night ? 'bg-white text-[#0b0d12]' : 'bg-[#0f1218] text-white') : 'opacity-70 hover:opacity-100'
+            }`}
+          >
+            {f.name}
+            {long && <span className="ml-1.5 hidden font-[560] opacity-70 sm:inline">{fmt(f.duration)}</span>}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -340,13 +419,13 @@ function VersionSwitch({ version, night, onChange }: { version: FilmVersion; nig
 }
 
 /** the scrubber as a line: filled up to the playhead, with a station for every chapter */
-function Scrubber({ time, night, onSeek }: { time: number; night: boolean; onSeek: (t: number) => void }) {
+function Scrubber({ film, time, night, onSeek }: { film: Film; time: number; night: boolean; onSeek: (t: number) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<number | null>(null);
   const drag = useRef(false);
   const at = (x: number) => {
     const r = ref.current!.getBoundingClientRect();
-    return clamp((x - r.left) / r.width, 0, 1) * FILM.duration;
+    return clamp((x - r.left) / r.width, 0, 1) * film.duration;
   };
   const down = (e: ReactPointerEvent) => {
     drag.current = true;
@@ -363,14 +442,14 @@ function Scrubber({ time, night, onSeek }: { time: number; night: boolean; onSee
     if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') onSeek(time - step);
     else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') onSeek(time + step);
     else if (e.key === 'Home') onSeek(0);
-    else if (e.key === 'End') onSeek(FILM.duration - 0.1);
-    else if (e.key === 'PageDown') onSeek(FILM.chapters.find((c) => c.t > time + 0.5)?.t ?? time);
-    else if (e.key === 'PageUp') onSeek([...FILM.chapters].reverse().find((c) => c.t < time - 1)?.t ?? 0);
+    else if (e.key === 'End') onSeek(film.duration - 0.1);
+    else if (e.key === 'PageDown') onSeek(film.chapters.find((c) => c.t > time + 0.5)?.t ?? time);
+    else if (e.key === 'PageUp') onSeek([...film.chapters].reverse().find((c) => c.t < time - 1)?.t ?? 0);
     else return;
     e.preventDefault();
     e.stopPropagation();
   };
-  const k = time / FILM.duration;
+  const k = time / film.duration;
   const track = night ? 'rgba(255,255,255,0.22)' : 'rgba(15,18,24,0.14)';
   const line = night ? '#b773ff' : '#9a37c3';
   const station = night ? '#0b0d12' : '#ffffff';
@@ -382,9 +461,9 @@ function Scrubber({ time, night, onSeek }: { time: number; night: boolean; onSee
       tabIndex={0}
       aria-label="Seek"
       aria-valuemin={0}
-      aria-valuemax={FILM.duration}
+      aria-valuemax={film.duration}
       aria-valuenow={Math.round(time)}
-      aria-valuetext={`${fmt(time)} of ${fmt(FILM.duration)}, ${chapterAt(time).title}`}
+      aria-valuetext={`${fmt(time)} of ${fmt(film.duration)}, ${chapterAt(film, time).title}`}
       onPointerDown={down}
       onPointerMove={move}
       onPointerUp={up}
@@ -394,13 +473,13 @@ function Scrubber({ time, night, onSeek }: { time: number; night: boolean; onSee
     >
       <div className="absolute inset-x-0 top-1/2 h-[5px] -translate-y-1/2 rounded-full" style={{ background: track }} />
       <div className="absolute left-0 top-1/2 h-[5px] -translate-y-1/2 rounded-full" style={{ width: `${k * 100}%`, background: line }} />
-      {FILM.chapters.map((c) => {
+      {film.chapters.map((c) => {
         const passed = time >= c.t;
         return (
           <span
             key={c.t}
             className="absolute top-1/2 h-[11px] w-[11px] -translate-x-1/2 -translate-y-1/2 rounded-full border-[2.5px]"
-            style={{ left: `${(c.t / FILM.duration) * 100}%`, borderColor: passed ? line : ink, background: passed ? line : station, opacity: passed ? 1 : 0.85 }}
+            style={{ left: `${(c.t / film.duration) * 100}%`, borderColor: passed ? line : ink, background: passed ? line : station, opacity: passed ? 1 : 0.85 }}
           />
         );
       })}
@@ -411,9 +490,9 @@ function Scrubber({ time, night, onSeek }: { time: number; night: boolean; onSee
       {hover != null && (
         <span
           className="pointer-events-none absolute bottom-[calc(100%+10px)] -translate-x-1/2 whitespace-nowrap rounded-lg px-2.5 py-1 text-[12.5px] font-[650] [font-stretch:92%]"
-          style={{ left: `${(hover / FILM.duration) * 100}%`, background: ink, color: station }}
+          style={{ left: `${(hover / film.duration) * 100}%`, background: ink, color: station }}
         >
-          {chapterAt(hover).title}
+          {chapterAt(film, hover).title}
           <span className="ml-1.5 tabular-nums opacity-70">{fmt(hover)}</span>
         </span>
       )}

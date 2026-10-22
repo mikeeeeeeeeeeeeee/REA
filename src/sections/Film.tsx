@@ -1,8 +1,9 @@
 import FilmPlayer from '@/components/film/FilmPlayer';
 import { Container, SectionTitle } from '@/components/ui/Layout';
 import { LineBadge } from '@/components/ui/Line';
+import { FILMS, lengthOf } from '@/data/film';
 
-/** the film, right after the hero: the paper in 108 seconds, in the page's own theme */
+/** the film, right after the hero: a narrated introduction to the paper in two cuts, in the page's own theme */
 export default function Film() {
   return (
     <section id="film" className="relative scroll-mt-20 pb-24 pt-14 sm:pb-32 sm:pt-20">
@@ -13,13 +14,15 @@ export default function Film() {
               <LineBadge line="s2" size={13} />
               <LineBadge line="s1" size={13} />
               <LineBadge line="s0" size={13} />
-              <span className="label ml-2">The film, 1 min 48 s</span>
+              <span className="label ml-2">
+                The film, {lengthOf(FILMS.full)} or {lengthOf(FILMS.short)}
+              </span>
             </div>
-            <SectionTitle>REA in 108 seconds</SectionTitle>
+            <SectionTitle>REA, explained</SectionTitle>
           </div>
           <p className="lede">
-            The problem, the runtime on one real test episode, and the results on LIBERO-Pro, BEHAVIOR-1K, RoboTwin 2.0 and a real Unitree G1.
-            The robot footage, the numbers and the judge's verdicts all come from the paper's runs. It plays in the page's light or dark theme.
+            A narrated walk through the paper, as the full explainer or a short cut. The robots are CG animation that re-stages the
+            experiments; the numbers are the paper's.
           </p>
         </div>
         <div className="mt-12">

@@ -38,7 +38,7 @@ Asset paths are relative (`base: './'`), so the same build works at a sub-path o
 | Test episodes, RoboTwin decisions, G1 and BEHAVIOR frames | `src/data/gen/*.ts` (generated) |
 | Colours (three lines: S2 brain, S1 router, S0 skills) | `src/index.css` and `src/theme/tokens.ts` |
 | The film: player, chapters, file names | `src/components/film/FilmPlayer.tsx`, `src/data/film.ts` |
-| The film's videos and posters | `public/film/*.mp4`, `src/assets/film/poster-*.webp` (made in `../film`) |
+| The film's videos and posters | `public/film/rea-intro-*.mp4`, `src/assets/film/intro-*poster-*.webp` (made in `../intro_video`) |
 
 Links that are not public yet (`arxiv`, `pdf`, `code`, `video` in `src/data/paper.ts`) are empty; the page then
 shows the button with a "soon" badge. Fill them in and push.
@@ -49,11 +49,13 @@ records, outside this repository; edit the generated files only by regenerating 
 
 ## The film
 
-The section after the hero plays a 108-second film of the paper, made in `../film` (see its README). It comes in a
-light and a dark version that follow the page theme; the switch in the player's bar overrides it, and switching keeps
-the place. Each version is HEVC at 60 fps (Safari, Chrome, Edge) with an H.264 file at 30 fps for other browsers; the
-player picks one with `canPlayType` and downloads nothing until play is pressed. The single-file build cannot carry
-the videos, so it streams them from the published site.
+The section after the hero plays a narrated introduction to the paper, made in `../intro_video` (see its README), in
+two cuts: the full explainer (4 min 35 s, `rea-intro-*.mp4`, the one the player opens with) and a short one (1 min
+32 s, `rea-intro-short-*.mp4`). The poster and the player's bar choose between them; another cut starts from its
+beginning. Its robots are CG animation re-staging the paper's experiments; the narration's subtitles are burned in.
+Each cut comes in a light and a dark version that follow the page theme; the switch in the player's bar overrides it,
+and switching keeps the place. Each version is one H.264 file at 24 fps; nothing downloads until play is pressed. The
+single-file build cannot carry the videos, so it streams them from the published site.
 
 ## Notes
 
