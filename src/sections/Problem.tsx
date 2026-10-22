@@ -27,8 +27,8 @@ const ROWS: Row[] = [
     icon: Alert02Icon,
     stat: (
       <>
-        Every decision sits on the control path. An advisor the robot waits for, asked only 1.7 times per episode, still leaves it idle{' '}
-        <b>2.62 s per episode, 20% of its control time</b>, and starts the first action 1.5 s late.
+        Every decision sits on the control path: an advisor asked only 1.7 times per episode still leaves the robot idle{' '}
+        <b>2.62 s per episode, 20% of its control time</b>.
       </>
     ),
   },
@@ -41,8 +41,7 @@ const ROWS: Row[] = [
     icon: ViewOffSlashIcon,
     stat: (
       <>
-        A persistent error calls the agent again and again, while most failures raise no error at all. An exception gate escalated{' '}
-        <b>6 times in 590 episodes, although 166 failed</b>.
+        Most failures raise no error: an exception gate escalated <b>6 times in 590 episodes, although 166 failed</b>.
       </>
     ),
   },
@@ -55,8 +54,7 @@ const ROWS: Row[] = [
     icon: Tick02Icon,
     stat: (
       <>
-        Dispatch is a lookup, every skill runs end to end, and the judge is asked only when a skill returns.{' '}
-        <b>No running skill waits on the brain</b>; where skills fail silently, the judge gate adds <b>3.1 points</b>.
+        Dispatch is a lookup and the judge is asked only when a skill returns: <b>no running skill waits on the brain</b>.
       </>
     ),
   },
@@ -71,8 +69,7 @@ export default function Problem() {
           <SectionTitle>Where should the brain sit?</SectionTitle>
           <p className="lede">
             A foundation model is a capable brain but a poor controller: emitting actions itself, it solved <b>1 of 1,987</b> LIBERO-Pro
-            episodes. Fast skills act at their own rate but cannot tell when they have quietly failed. How the two are coupled decides whether
-            the robot waits, or whether failures go unnoticed.
+            episodes. Fast skills act at their own rate but cannot tell when they have quietly failed.
           </p>
         </div>
 
@@ -95,7 +92,7 @@ export default function Problem() {
                 <div>
                   <div className="flex items-center gap-3">
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-[3px] border-ink text-[15px] font-[800] text-ink">{r.code}</span>
-                    <p className="text-[21px] font-[740] leading-tight text-ink [font-stretch:86%]">{r.title}</p>
+                    <p className="title-card text-ink">{r.title}</p>
                   </div>
                   <div
                     className="mt-3 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[13.5px] font-[700] [font-stretch:92%]"

@@ -15,7 +15,7 @@ function ModuleHead({ n, name, title, children }: { n: number; name: string; tit
         <LineBadge line="s1" size={13} />
         Module {n}: {name}
       </p>
-      <h3 className="sign-lg mt-3 text-[clamp(2rem,3.6vw,3.2rem)] text-ink">{title}</h3>
+      <h3 className="sign-lg title-part mt-2.5 text-ink">{title}</h3>
       <div className="mt-5 space-y-4 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">{children}</div>
     </div>
   );
@@ -42,8 +42,7 @@ export default function Router() {
         <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end">
           <SectionTitle>One router, three modules</SectionTitle>
           <p className="lede">
-            System 1 owns every control-flow decision: which skill runs, when to ask the brain, when to stop. Each of its modules answers one of
-            the coordination problems above, and none of them makes a running skill wait.
+            System 1 owns every control-flow decision: which skill runs, when to ask the brain, when to stop.
           </p>
         </div>
 
@@ -51,9 +50,8 @@ export default function Router() {
         <div className="mt-20 grid items-start gap-x-14 gap-y-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
           <ModuleHead n={1} name="route memory" title="Dispatch without asking the brain">
             <p>
-              Before any test episode, the router replays each candidate skill on development episodes, with seeds disjoint from the test
-              seeds, and stores its success rate and mean steps. At test time the first skill is a lookup: <b>highest success, ties broken by
-              fewer steps</b>.
+              Before testing, the router replays each candidate skill on development seeds, disjoint from the test seeds, and stores its
+              success and mean steps. At test time the first skill is a lookup: <b>highest success, ties broken by fewer steps</b>.
             </p>
             <div className="grid grid-cols-2 gap-5 pt-2">
               <Fact value="0" label="model tokens to build it" />
@@ -82,12 +80,11 @@ export default function Router() {
           <div className="order-1 lg:order-2">
             <ModuleHead n={2} name="judge gate" title="Ask the brain when a skill returns">
               <p>
-                Most failures are silent: the skill returns with no error and the task unfinished, so an exception never fires. REA asks the
-                visual judge <b>once per skill return</b>, with the episode's first frame, the current frame and the instruction.
+                Most failures are silent: the skill returns with no error and the task unfinished. REA asks the visual judge{' '}
+                <b>once per skill return</b>, with the first frame, the current frame and the instruction.
               </p>
               <p>
-                <b>Done</b> stops the episode and protects finished work. <b>Not done</b> escalates. The judge never sees simulator state, and its
-                verdict is never used as the score.
+                <b>Done</b> stops the episode; <b>not done</b> escalates. The verdict is never used as the score.
               </p>
             </ModuleHead>
             <div className="mt-7 space-y-3 rounded-2xl border border-rule bg-surface p-5">
@@ -95,10 +92,7 @@ export default function Router() {
               <CalRow label="accuracy, with the first frame" v={frozen.acc} />
               <CalRow label="accuracy, current frame only" v={noInitial.acc} muted />
               <CalRow label="done precision, LIBERO-Pro test episodes" v={JUDGE.confusion.libero.precision} digits={3} />
-              <p className="pt-1 text-[13px] leading-snug text-ink-3">
-                Calibrated on {JUDGE.labels} development labels before any test run. Its done is reliable, and re-running a finished task
-                rarely undoes it: by a proxy attribution, re-runs rescue about 24% of failed first runs and undo 5% of successes on the matched subset.
-              </p>
+              <p className="pt-1 text-[13px] leading-snug text-ink-3">Calibrated on {JUDGE.labels} development labels before any test run.</p>
             </div>
           </div>
         </div>
@@ -107,12 +101,8 @@ export default function Router() {
         <div className="mt-28 grid items-start gap-x-14 gap-y-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
           <ModuleHead n={3} name="escalation ladder" title="Recover from where the last skill stopped">
             <p>
-              The ladder is <b>first, other, first</b> in route-memory order. Each escalation starts from the current scene instead of a reset,
-              and every run and judge call draws on <b>one shared budget</b> of 4,000 steps and 900 s.
-            </p>
-            <p>
-              Recovering blindly does not help: re-running a skill without asking turned 4 of 12 successes into 1 of 12 on one task, where a
-              second grasp disturbs an object the first had already placed.
+              The ladder is <b>first, other, first</b> in route-memory order. Each escalation starts from the current scene, and every run and
+              judge call draws on <b>one shared budget</b> of 4,000 steps and 900 s.
             </p>
           </ModuleHead>
           <LadderBudget />

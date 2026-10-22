@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
+import { Add01Icon } from '@hugeicons/core-free-icons';
 import Counter from '@/components/reactbits/Counter/Counter';
-import ScrollReveal from '@/components/reactbits/ScrollReveal/ScrollReveal';
+import Icon from '@/components/ui/Icon';
 import { Container } from '@/components/ui/Layout';
 import { LineBadge } from '@/components/ui/Line';
 import { ABSTRACT } from '@/data/paper';
@@ -16,27 +17,15 @@ const STOPS = [
 ];
 
 const CONTRIBUTIONS = [
-  {
-    line: 's0' as const,
-    title: 'One contract for brains and skills',
-    body: 'A three-level runtime that unifies agents, VLAs and program skills under one contract and evaluation protocol, across simulated and real embodiments.',
-  },
-  {
-    line: 's1' as const,
-    title: 'A router that never blocks a skill',
-    body: 'Three modules, one per coordination problem: route memory for dispatch, a boundary-triggered judge gate for silent failures, an escalation ladder with a shared budget for recovery.',
-  },
-  {
-    line: 's2' as const,
-    title: 'An aligned study of where the brain should sit',
-    body: 'More than 30,000 test episodes on identical tasks, seeds, initial states and budgets: route memory beats every skill author alone and gives the fastest arm; a judge at skill returns helps where skills fail silently, at extra time; inside the control loop, the brain only adds waiting.',
-  },
+  { line: 's0' as const, title: 'One contract for brains and skills', body: 'A three-level runtime that unifies agents, VLAs and program skills under one contract and one evaluation protocol.' },
+  { line: 's1' as const, title: 'A router that never blocks a skill', body: 'Route memory for dispatch, a judge gate for silent failures, an escalation ladder with a shared budget for recovery.' },
+  { line: 's2' as const, title: 'An aligned study of where the brain should sit', body: 'More than 30,000 test episodes on identical tasks, seeds, initial states and budgets.' },
 ];
 
 export default function Overview() {
   const [ref, seen] = useSeenOnce<HTMLDivElement>(0.3);
   return (
-    <section id="overview" className="relative scroll-mt-20 py-24 sm:py-32">
+    <section id="overview" className="relative scroll-mt-20 pb-24 pt-10 sm:pb-32 sm:pt-14">
       <Container wide>
         {/* results along REA's line */}
         <div ref={ref} className="relative">
@@ -72,43 +61,39 @@ export default function Overview() {
         </div>
       </Container>
 
-      <Container className="mt-28 sm:mt-36">
-        <ScrollReveal
-          baseOpacity={0.12}
-          enableBlur
-          baseRotation={1.2}
-          blurStrength={5}
-          containerClassName="!my-0"
-          textClassName="sign-lg !text-[clamp(2.1rem,4.4vw,3.9rem)] !leading-[1.04] text-ink"
-        >
-          The brain is worth most when it decides ahead of time and is asked only at natural boundaries, never wedged into the control path.
-        </ScrollReveal>
+      <Container wide className="mt-20 sm:mt-24">
+        <ol className="grid gap-x-10 gap-y-8 md:grid-cols-3">
+          {CONTRIBUTIONS.map((c, i) => (
+            <li key={c.title} className="border-t-[3px] pt-5" style={{ borderColor: `var(--${c.line})` }}>
+              <p className="title-card flex items-start gap-2.5 text-ink">
+                <LineBadge line={c.line} size={13} className="mt-[2px] shrink-0" />
+                <span>
+                  <span className="mr-1.5 text-ink-4">{i + 1}</span>
+                  {c.title}
+                </span>
+              </p>
+              <p className="mt-2 max-w-[46ch] text-[15.5px] leading-[1.6] text-ink-2">{c.body}</p>
+            </li>
+          ))}
+        </ol>
 
-        <div id="abstract" className="mt-16 grid scroll-mt-28 gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-          <div className="space-y-5 text-[17.5px] leading-[1.7] text-ink-2">
-            <p className="label !text-[14px] !text-ink">Abstract</p>
+        {/* the paper's abstract, one click away; the hero's "Read the abstract" opens it */}
+        <details id="abstract" className="group mt-14 scroll-mt-28 border-y border-rule">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 [&::-webkit-details-marker]:hidden">
+            <span className="flex min-w-0 items-baseline gap-5">
+              <span className="text-[17px] font-[740] text-ink [font-stretch:88%]">Abstract</span>
+              <span className="hidden truncate text-[15px] text-ink-3 sm:block group-open:invisible">{ABSTRACT[0]}</span>
+            </span>
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-rule-2 text-ink transition-transform duration-300 group-open:rotate-45">
+              <Icon icon={Add01Icon} size={17} />
+            </span>
+          </summary>
+          <div className="max-w-[72ch] space-y-5 pb-9 text-[17px] leading-[1.7] text-ink-2">
             {ABSTRACT.map((para, i) => (
               <p key={i}>{para}</p>
             ))}
           </div>
-          <div className="lg:pt-10">
-            <p className="label !text-[14px] !text-ink">Contributions</p>
-            <ol className="relative mt-5 border-l-[5px] border-rule pl-7">
-              {CONTRIBUTIONS.map((c, i) => (
-                <li key={c.title} className="relative pb-9 last:pb-0">
-                  <span className="absolute -left-[45px] top-0">
-                    <LineBadge line={c.line} size={14} />
-                  </span>
-                  <p className="text-[18px] font-[720] leading-snug text-ink [font-stretch:90%]">
-                    <span className="mr-2 text-ink-4">{i + 1}</span>
-                    {c.title}
-                  </p>
-                  <p className="mt-1.5 text-[15.5px] leading-[1.6] text-ink-2">{c.body}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
+        </details>
       </Container>
     </section>
   );

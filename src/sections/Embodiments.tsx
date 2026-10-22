@@ -1,73 +1,58 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { PauseIcon, PlayIcon, PlayCircleIcon } from '@hugeicons/core-free-icons';
-import ChromaGrid from '@/components/reactbits/ChromaGrid/ChromaGrid';
 import ElasticSlider from '@/components/reactbits/ElasticSlider/ElasticSlider';
 import JellyRadio from '@/components/reactbits/JellyRadio/JellyRadio';
 import TextType from '@/components/reactbits/TextType/TextType';
-import LazyMount from '@/components/ui/LazyMount';
+import CgVideo, { CgChip } from '@/components/cg/CgVideo';
 import Icon from '@/components/ui/Icon';
 import { Container, SectionTitle } from '@/components/ui/Layout';
 import { LineBadge } from '@/components/ui/Line';
 import { ChartFrame } from '@/components/viz/charts';
 import { BEHAVIOR_TASKS, G1_LATENCY } from '@/data/results';
 import { LINKS } from '@/data/paper';
-import { EPISODES } from '@/data/gen/episodes';
 import { BEHAVIOR } from '@/data/gen/behavior';
 import { ROBOTWIN } from '@/data/gen/robotwin';
 import { G1_FRONT, G1_SIDE } from '@/data/gen/g1';
 import { useTheme } from '@/theme/ThemeProvider';
-import { useNearViewport, useReducedMotion, useSeenOnce } from '@/lib/hooks';
+import type { CgClip } from '@/data/cg';
+import { useInView, useNearViewport, useReducedMotion, useSeenOnce } from '@/lib/hooks';
+
+/** the four termini: where REA ran, what it solved there, and the CG clip that stands for it */
+const TERMINI: { clip: CgClip; bench: string; score: string; unit: string; task: string }[] = [
+  { clip: 'bowl', bench: 'LIBERO-Pro', score: '2,876 / 3,000', unit: 'test episodes, MuJoCo', task: 'Put the bowl on the stove' },
+  { clip: 'behavior', bench: 'BEHAVIOR-1K', score: '27 / 50', unit: 'test episodes, Isaac Sim', task: 'A mobile R1Pro picks things up' },
+  { clip: 'robotwin', bench: 'RoboTwin 2.0', score: '133 / 200', unit: 'bimanual scenes, SAPIEN', task: 'Lift the pot with both arms' },
+  { clip: 'g1', bench: 'Unitree G1', score: '8 / 10', unit: 'real trials, operator-judged', task: 'Walk to a chair and push it' },
+];
 
 export default function Embodiments() {
-  const { t, theme } = useTheme();
-  const termini = [
-    { image: EPISODES[0].frames[3], title: 'LIBERO-Pro', subtitle: '2,876 of 3,000 test episodes, MuJoCo', accent: t.s1, alt: 'LIBERO-Pro: the bowl on the stove' },
-    { image: BEHAVIOR[0].image, title: 'BEHAVIOR-1K', subtitle: '27 of 50, the most of five methods, Isaac Sim', accent: t.s1, alt: 'BEHAVIOR-1K: R1Pro picking up a radio' },
-    { image: ROBOTWIN[0].steps[ROBOTWIN[0].steps.length - 1].image, title: 'RoboTwin 2.0', subtitle: '133 of 200 bimanual scenes, SAPIEN', accent: t.s1, alt: 'RoboTwin 2.0: burger and fries on the tray' },
-    { image: G1_FRONT[7].image, title: 'Unitree G1', subtitle: '8 of 10 real trials, operator-judged', accent: t.s1, alt: 'Unitree G1 pushing a chair' },
-  ];
   return (
     <section id="embodiments" className="relative scroll-mt-20 py-24 sm:py-32">
       <Container wide>
         <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end">
           <SectionTitle>Four termini, one runtime</SectionTitle>
           <p className="lede">
-            Because every backend implements the same three-level contract, moving REA is a matter of a new backend and new skills: three
-            simulators and a real humanoid, and the most episodes solved on each.
+            The same three-level contract on three simulators and a real humanoid; on each, REA solves the most episodes of the compared methods.
           </p>
         </div>
 
-        {/* the termini, on one line */}
-        <div className="relative mt-14">
-          <div className="pointer-events-none absolute left-[12.5%] right-[12.5%] top-[-22px] hidden h-[8px] rounded-full bg-s1 md:block" aria-hidden />
-          <div className="pointer-events-none absolute left-0 right-0 top-[-31px] hidden md:block" aria-hidden>
-            <div className="grid grid-cols-4">
-              {termini.map((tm) => (
-                <span key={tm.title} className="mx-auto block h-[26px] w-[26px] rounded-full border-[5px] border-ink bg-[var(--station)]" />
-              ))}
-            </div>
-          </div>
-          <LazyMount margin="300px" className="min-h-[340px]">
-            <ChromaGrid items={termini} columns={4} radius={320} damping={0.45} fadeOut={0.6} grayscale={0.65} dim={0.06} theme={theme} aspectRatio="4 / 5" cardRadius={18} showInfo frame />
-          </LazyMount>
-        </div>
+        <TerminiStage />
 
         <div className="mt-24 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
           <div>
             <p className="flex items-center gap-2 text-[14px] font-[700] text-ink-3 [font-stretch:92%]">
               <LineBadge line="s0" size={12} /> Real robot
             </p>
-            <h3 className="sign-lg mt-2.5 text-[clamp(1.9rem,3.2vw,2.9rem)] text-ink">A Unitree G1 walks to a chair and pushes it</h3>
+            <h3 className="sign-lg title-part mt-2.5 text-ink">A Unitree G1 walks to a chair and pushes it</h3>
             <div className="mt-4 space-y-3 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
               <p>
-                Every method gets the same robot, the same model and the same four skills: walk forward, the native two-arm push, release, stop.
-                REA dispatches each skill at a boundary from the head and wrist cameras. It succeeded in <b>8 of 10</b> trials, against 5 for an
-                Agents SDK agent, 4 for Codex and 2 for ASPIRE's code-as-policy.
+                Every method gets the same robot, model and four skills: walk forward, the native two-arm push, release, stop. REA succeeded in{' '}
+                <b>8 of 10</b> trials, against 5 for an Agents SDK agent, 4 for Codex and 2 for ASPIRE's code-as-policy.
               </p>
               <p>
-                A separate service on the robot, without the router, computes brain decisions ahead of the request, so a decision request returns
-                in <b>1.0 to 3.6 ms</b> instead of about 5 s; the motion follows at execution.
+                A separate service on the robot, without the router, computes brain decisions ahead of the request: one returns in <b>1.0 to 3.6 ms</b>{' '}
+                instead of about 5 s.
               </p>
             </div>
             <LatencyChart />
@@ -75,28 +60,183 @@ export default function Embodiments() {
           <G1Player />
         </div>
 
-        <div className="mt-24 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-          <RoboTwinReplay />
+        {/* the two simulators: a heading row, then the RoboTwin replay and the BEHAVIOR-1K table side by side, one height */}
+        <div className="mt-24 grid gap-x-12 gap-y-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-end">
           <div>
             <p className="flex items-center gap-2 text-[14px] font-[700] text-ink-3 [font-stretch:92%]">
               <LineBadge line="s0" size={12} /> Simulators
             </p>
-            <h3 className="sign-lg mt-2.5 text-[clamp(1.9rem,3.2vw,2.9rem)] text-ink">The same runtime on two more simulators</h3>
-            <div className="mt-4 space-y-3 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
-              <p>
-                RoboTwin 2.0 has no skill library, so a fast reflex model is the System 0 skill and the router hands single decisions to a
-                deliberate model. Left: one test scene, decision by decision, with each model's own reasoning.
-              </p>
-              <p>
-                On BEHAVIOR-1K, a mobile R1Pro starts metres from the object it has to find and pick up; REA ran with the same tools, model and 1,500 s
-                budget as an online agent.
-              </p>
-            </div>
-            <BehaviorGrid />
+            <h3 className="sign-lg title-part mt-2.5 text-ink">The same runtime on two more simulators</h3>
           </div>
+          <div className="space-y-3 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
+            <p>
+              RoboTwin 2.0 has no skill library, so a fast reflex model is the System 0 skill and the router hands single decisions to a
+              deliberate model.
+            </p>
+            <p>
+              On BEHAVIOR-1K, a mobile R1Pro starts metres from the object it has to find and pick up; REA ran with the same tools, model and 1,500 s
+              budget as an online agent.
+            </p>
+          </div>
+        </div>
+        <div className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+          <RoboTwinReplay />
+          <BehaviorGrid />
         </div>
       </Container>
     </section>
+  );
+}
+
+const RING = 2 * Math.PI * 19;
+
+/**
+ * The four termini as stations on REA's line, above a stage that plays each one's CG clip in turn: a ring round the
+ * station shows how far its clip has got, and when the clip ends the line runs on to the next. A click on a station
+ * goes there. Nothing downloads until the stage is near; with reduced motion it shows each clip's first frame.
+ */
+function TerminiStage() {
+  const reduce = useReducedMotion();
+  const [nearRef, near] = useNearViewport<HTMLDivElement>('500px');
+  const [viewRef, inView] = useInView<HTMLDivElement>(0.4);
+  const [cur, setCur] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [loaded, setLoaded] = useState<ReadonlySet<number>>(() => new Set());
+  const videos = useRef<(HTMLVideoElement | null)[]>([]);
+  const ring = useRef<SVGCircleElement | null>(null);
+  const hold = useRef(0);
+  const play = inView && !paused && !reduce;
+  const n = TERMINI.length;
+
+  // the current clip and the next may download; a clip that has loaded stays loaded
+  useEffect(() => {
+    if (!near || reduce) return;
+    setLoaded((s) => (s.has(cur) && s.has((cur + 1) % n) ? s : new Set([...s, cur, (cur + 1) % n])));
+  }, [near, reduce, cur, n]);
+
+  // the ring round the current station follows its clip
+  useEffect(() => {
+    let raf = 0;
+    const tick = () => {
+      const v = videos.current[cur];
+      if (ring.current) ring.current.style.strokeDashoffset = String(RING * (1 - (v && v.duration ? v.currentTime / v.duration : 0)));
+      if (play) raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(raf);
+  }, [play, cur]);
+
+  useEffect(() => () => window.clearTimeout(hold.current), []);
+
+  const go = (k: number) => {
+    window.clearTimeout(hold.current);
+    const v = videos.current[k];
+    if (v && v.readyState > 0) v.currentTime = 0;
+    setCur(k);
+  };
+  // a clip that has ended holds its last frame for a moment, then the line runs on
+  const ended = (k: number) => {
+    if (k === cur) hold.current = window.setTimeout(() => go((k + 1) % n), 900);
+  };
+  const tm = TERMINI[cur];
+
+  return (
+    <div ref={nearRef} className="mt-14 grid gap-x-12 gap-y-8 xl:grid-cols-[minmax(0,3fr)_minmax(0,10fr)]">
+      {/* the line and its termini: across the top on small screens, down the side on large ones */}
+      <ol className="grid grid-cols-4 xl:flex xl:flex-col xl:py-1" aria-label="Termini">
+        {TERMINI.map((x, k) => {
+          const here = k === cur;
+          return (
+            <li key={x.clip} className="relative xl:flex-1">
+              {k < n - 1 && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute left-1/2 top-[13px] h-[8px] w-full rounded-full transition-colors duration-500 xl:left-[13px] xl:top-[17px] xl:h-full xl:w-[8px]"
+                  style={{ background: k < cur ? 'var(--s1)' : 'var(--rule-2)' }}
+                />
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setPaused(false);
+                  go(k);
+                }}
+                aria-pressed={here}
+                aria-label={`${x.bench}: ${x.score}, ${x.unit}`}
+                className="group relative flex w-full flex-col items-center px-1 text-center xl:flex-row xl:items-start xl:gap-5 xl:px-0 xl:text-left"
+              >
+                <span className="relative grid h-[34px] w-[34px] shrink-0 place-items-center">
+                  {here && !reduce && (
+                    <svg className="absolute -inset-[6px] -rotate-90" viewBox="0 0 46 46" aria-hidden>
+                      <circle ref={ring} cx="23" cy="23" r="19" fill="none" stroke="var(--s1)" strokeWidth="3" strokeLinecap="round" strokeDasharray={RING} strokeDashoffset={RING} />
+                    </svg>
+                  )}
+                  <span
+                    className="h-[26px] w-[26px] rounded-full border-[5px] border-ink transition-[background-color,transform] duration-300 group-hover:scale-110"
+                    style={{ background: k <= cur ? 'var(--s1)' : 'var(--station)' }}
+                  />
+                </span>
+                <span className="mt-3 flex flex-col items-center xl:mt-0 xl:items-start xl:pt-[5px]">
+                  <span className={`text-[14px] font-[760] leading-tight transition-colors [font-stretch:86%] sm:text-[17px] ${here ? 'text-ink' : 'text-ink-3 group-hover:text-ink'}`}>
+                    {x.bench}
+                  </span>
+                  <span className={`tabular mt-1 whitespace-nowrap text-[13px] font-[780] leading-none transition-colors [font-stretch:84%] sm:mt-1.5 sm:text-[clamp(1.25rem,2vw,1.75rem)] ${here ? 'text-ink' : 'text-ink-3'}`}>
+                    {x.score}
+                  </span>
+                  <span className="mt-1.5 hidden max-w-[24ch] text-[13px] leading-snug text-ink-3 sm:block">{x.unit}</span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+
+      <div ref={viewRef} className="figure-frame relative aspect-video overflow-hidden !rounded-[22px]">
+        {TERMINI.map((x, k) => (
+          <CgVideo
+            key={x.clip}
+            ref={(el) => {
+              videos.current[k] = el;
+            }}
+            clip={x.clip}
+            play={play && k === cur}
+            load={loaded.has(k)}
+            label={`${x.task} (CG illustration)`}
+            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+            style={{ opacity: k === cur ? 1 : 0 }}
+            onEnded={() => ended(k)}
+          />
+        ))}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3 sm:p-5">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={tm.clip}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.35 }}
+              className="rounded-full bg-black/45 px-3.5 py-1.5 text-[13px] font-[680] text-white backdrop-blur-md [font-stretch:92%] sm:text-[15px]"
+            >
+              {tm.task}
+            </motion.p>
+          </AnimatePresence>
+          <div className="pointer-events-auto flex shrink-0 items-center gap-2">
+            <CgChip />
+            {!reduce && (
+              <button
+                type="button"
+                onClick={() => setPaused((p) => !p)}
+                aria-label={paused ? 'Play the clips' : 'Pause the clips'}
+                title={paused ? 'Play the clips' : 'Pause the clips'}
+                className="grid h-7 w-7 place-items-center rounded-full bg-black/45 text-white/90 backdrop-blur-md transition-colors hover:bg-black/60"
+              >
+                <Icon icon={paused ? PlayIcon : PauseIcon} size={13} stroke={2.2} />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -142,67 +282,64 @@ function G1Player() {
   const s = G1_SIDE[i];
   return (
     <div ref={ref} className="figure-frame overflow-hidden">
-      <div className="grid gap-px bg-rule sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      {/* the two cameras side by side at one height: the columns are in the ratio of the frames' aspect ratios */}
+      <div className="grid grid-cols-[minmax(0,5606fr)_minmax(0,17814fr)] gap-px bg-rule">
         <div className="relative aspect-[430/767] overflow-hidden bg-[#0b0e14]">
           {G1_FRONT.map((fr, k) => (
             <img key={fr.image} src={fr.image} alt={k === i ? `Front camera, ${fr.t} s` : ''} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500" style={{ opacity: k === i ? 1 : 0 }} draggable={false} />
           ))}
-          <span className="tabular absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[12px] font-[650] text-white backdrop-blur-sm">front, {f.t.toFixed(1)} s</span>
+          <span className="tabular absolute left-1.5 top-1.5 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-[650] text-white backdrop-blur-sm sm:left-2.5 sm:top-2.5 sm:px-2.5 sm:py-1 sm:text-[12px]">front, {f.t.toFixed(1)} s</span>
         </div>
-        <div className="flex flex-col bg-surface">
-          <div className="relative aspect-[440/247] overflow-hidden bg-[#0b0e14]">
-            {G1_SIDE.map((fr, k) => (
-              <img key={fr.image} src={fr.image} alt={k === i ? `Side camera, ${fr.t} s` : ''} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500" style={{ opacity: k === i ? 1 : 0 }} draggable={false} />
-            ))}
-            <span className="tabular absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[12px] font-[650] text-white backdrop-blur-sm">side, {s.t.toFixed(1)} s</span>
+        <div className="relative aspect-[440/247] overflow-hidden bg-[#0b0e14]">
+          {G1_SIDE.map((fr, k) => (
+            <img key={fr.image} src={fr.image} alt={k === i ? `Side camera, ${fr.t} s` : ''} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500" style={{ opacity: k === i ? 1 : 0 }} draggable={false} />
+          ))}
+          <span className="tabular absolute left-1.5 top-1.5 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-[650] text-white backdrop-blur-sm sm:left-2.5 sm:top-2.5 sm:px-2.5 sm:py-1 sm:text-[12px]">side, {s.t.toFixed(1)} s</span>
+        </div>
+      </div>
+      <div className="border-t border-rule px-5 pb-5 pt-4">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setPlaying((p) => !p)}
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-paper"
+            aria-label={playing ? 'Pause' : 'Play'}
+          >
+            <Icon icon={playing ? PauseIcon : PlayIcon} size={17} />
+          </button>
+          <div className="flex-1">
+            <ElasticSlider
+              value={i}
+              maxValue={G1_FRONT.length - 1}
+              isStepped
+              stepSize={1}
+              onChange={(v) => {
+                setPlaying(false);
+                setI(Math.round(v));
+              }}
+              valuePosition="none"
+              ticks
+              thickness={8}
+              activeThickness={12}
+              className="!w-full"
+              leftIcon={<span className="tabular text-[12px] font-[600] text-ink-3">{G1_FRONT[0].t} s</span>}
+              rightIcon={<span className="tabular text-[12px] font-[600] text-ink-3">{G1_FRONT[G1_FRONT.length - 1].t} s</span>}
+              ariaLabel="Video time"
+            />
           </div>
-          <div className="flex flex-1 flex-col justify-between gap-5 p-5">
-            <div>
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setPlaying((p) => !p)}
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-paper"
-                  aria-label={playing ? 'Pause' : 'Play'}
-                >
-                  <Icon icon={playing ? PauseIcon : PlayIcon} size={17} />
-                </button>
-                <div className="flex-1">
-                  <ElasticSlider
-                    value={i}
-                    maxValue={G1_FRONT.length - 1}
-                    isStepped
-                    stepSize={1}
-                    onChange={(v) => {
-                      setPlaying(false);
-                      setI(Math.round(v));
-                    }}
-                    valuePosition="none"
-                    ticks
-                    thickness={8}
-                    activeThickness={12}
-                    className="!w-full"
-                    leftIcon={<span className="tabular text-[12px] font-[600] text-ink-3">{G1_FRONT[0].t} s</span>}
-                    rightIcon={<span className="tabular text-[12px] font-[600] text-ink-3">{G1_FRONT[G1_FRONT.length - 1].t} s</span>}
-                    ariaLabel="Video time"
-                  />
-                </div>
-              </div>
-              <p className="mt-3 text-[13px] leading-snug text-ink-3">
-                Frames of one of REA's successful trials from two external cameras, at the video times printed in the paper's Figure 13.
-              </p>
-            </div>
-            <a
-              href={LINKS.video || undefined}
-              target={LINKS.video ? '_blank' : undefined}
-              rel="noreferrer"
-              aria-disabled={!LINKS.video || undefined}
-              className="flex items-center gap-3 rounded-xl border border-dashed border-rule-2 px-4 py-3 text-[14px] font-[620] text-ink-2 aria-disabled:cursor-default"
-            >
-              <Icon icon={PlayCircleIcon} size={20} />
-              {LINKS.video ? 'Watch the full trial video' : 'Full trial video: coming soon'}
-            </a>
-          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <p className="max-w-[52ch] text-[13px] leading-snug text-ink-3">One of REA's successful trials, two external cameras, at the times in the paper's Figure 13.</p>
+          <a
+            href={LINKS.video || undefined}
+            target={LINKS.video ? '_blank' : undefined}
+            rel="noreferrer"
+            aria-disabled={!LINKS.video || undefined}
+            className="flex shrink-0 items-center gap-2 rounded-full border border-dashed border-rule-2 px-3.5 py-2 text-[13.5px] font-[620] text-ink-2 aria-disabled:cursor-default"
+          >
+            <Icon icon={PlayCircleIcon} size={18} />
+            {LINKS.video ? 'Watch the full trial video' : 'Full trial video: coming soon'}
+          </a>
         </div>
       </div>
     </div>
@@ -227,7 +364,7 @@ function RoboTwinReplay() {
   }, [k, near, reduce, sc]);
   const st = sc.steps[k];
   return (
-    <div ref={ref} className="figure-frame overflow-hidden">
+    <div ref={ref} className="figure-frame flex flex-col overflow-hidden">
       <div className="border-b border-rule px-5 py-4">
         <JellyRadio
           items={ROBOTWIN.map((r, i) => ({ value: String(i), label: r.title.replace(' (randomized scene)', '') }))}
@@ -241,8 +378,8 @@ function RoboTwinReplay() {
           ariaLabel="RoboTwin scene"
         />
       </div>
-      <div className="grid gap-0 md:grid-cols-[minmax(0,6fr)_minmax(0,5fr)]">
-        <div className="relative aspect-[4/3] overflow-hidden bg-[#0b0e14]">
+      <div className="grid flex-1 gap-0 md:grid-cols-[minmax(0,6fr)_minmax(0,5fr)]">
+        <div className="relative aspect-[4/3] overflow-hidden bg-[#0b0e14] xl:aspect-auto xl:min-h-[300px]">
           {sc.steps.map((s, i) => (
             <img key={s.image} src={s.image} alt={i === k ? `Head camera at decision ${s.step + 1}` : ''} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300" style={{ opacity: i === k ? 1 : 0 }} draggable={false} />
           ))}
@@ -282,7 +419,7 @@ function RoboTwinReplay() {
             </AnimatePresence>
           </div>
           <p className="mt-auto border-t border-rule pt-3 text-[12.5px] leading-snug text-ink-3">
-            Test scene {sc.scene.replace('rt500-', '').replace(/-/g, ' ')}, solved in {sc.decisions} decisions. Text is the model's own reasoning from the run log.
+            Test scene {sc.scene.replace('rt500-', '').replace(/-/g, ' ')}, solved in {sc.decisions} decisions; the text is the model's own reasoning.
           </p>
         </div>
       </div>
@@ -294,7 +431,6 @@ function BehaviorGrid() {
   const max = 10;
   return (
     <ChartFrame
-      className="mt-7"
       title="BEHAVIOR-1K, successes out of 10 per task"
       sub="test instances 1–10, R1Pro, the same model for every method"
       table={{ head: ['Method', ...BEHAVIOR_TASKS.tasks, 'Total'], rows: BEHAVIOR_TASKS.rows.map((r) => [r.label, ...r.values, `${r.values.reduce((a, b) => a + b, 0)}/50`]) }}

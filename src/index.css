@@ -167,27 +167,50 @@
   .grid > * {
     min-width: 0;
   }
+  p,
+  li,
+  figcaption {
+    text-wrap: pretty;
+  }
 }
 
 @layer components {
-  /* station-sign headlines: condensed, heavy, tight */
+  /* station-sign headlines: condensed, heavy, tight; their lines are balanced, so no title ends on a lone word */
   .sign-xl {
     font-stretch: 78%;
     font-weight: 780;
     letter-spacing: -0.012em;
-    line-height: 0.92;
+    line-height: 0.94;
+    text-wrap: balance;
   }
   .sign-lg {
     font-stretch: 82%;
     font-weight: 740;
     letter-spacing: -0.01em;
-    line-height: 0.98;
+    line-height: 1;
+    text-wrap: balance;
   }
   .sign-md {
     font-stretch: 88%;
     font-weight: 700;
     letter-spacing: -0.005em;
     line-height: 1.08;
+    text-wrap: balance;
+  }
+  /* the page's three title sizes: a section, a part of a section, a card */
+  .title-section {
+    font-size: clamp(2.6rem, 1.2rem + 3.9vw, 4.9rem);
+  }
+  .title-part {
+    font-size: clamp(1.85rem, 1rem + 2.1vw, 2.75rem);
+  }
+  .title-card {
+    font-size: 1.3125rem;
+    font-stretch: 86%;
+    font-weight: 740;
+    letter-spacing: -0.005em;
+    line-height: 1.15;
+    text-wrap: balance;
   }
   .label {
     font-stretch: 92%;
@@ -201,6 +224,7 @@
     line-height: 1.62;
     color: var(--ink-2);
     max-width: 62ch;
+    text-wrap: pretty;
   }
   .lede strong,
   .lede b {

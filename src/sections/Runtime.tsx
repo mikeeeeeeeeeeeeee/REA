@@ -17,7 +17,6 @@ type Guide = {
   runs: string;
   calls: { sig: string; note: string }[];
   never: string;
-  fact: React.ReactNode;
 };
 
 const GUIDE: Guide[] = [
@@ -32,12 +31,6 @@ const GUIDE: Guide[] = [
       { sig: 'Advise(o) → p', note: 'optional: pick a skill from text' },
     ],
     never: 'emits an action, or reads simulator state, rewards or object poses',
-    fact: (
-      <>
-        Writing skills is where the brain is worth its cost: ASPIRE's repair loop spent a median <b>43 min</b> per task, a Codex + GPT-6
-        pipeline <b>89M input tokens</b> for 60 tasks.
-      </>
-    ),
   },
   {
     line: 's1',
@@ -50,11 +43,6 @@ const GUIDE: Guide[] = [
       { sig: 'Score()', note: 'read once, after the last run' },
     ],
     never: 'makes a running skill wait, or reads the success predicate before the end',
-    fact: (
-      <>
-        Its choices are cheap: route memory replays frozen skills on <b>1,790 development episodes</b> and uses <b>no model tokens</b>.
-      </>
-    ),
   },
   {
     line: 's0',
@@ -63,12 +51,6 @@ const GUIDE: Guide[] = [
     runs: 'end to end, at their own rate',
     calls: [{ sig: 'Run(p; H − u, W − w) → (Δ, δ, e, τ)', note: 'steps and seconds used, exception, truncation' }],
     never: 'waits for the brain while it runs',
-    fact: (
-      <>
-        On LIBERO-Pro they are agent-written Python programs calling SAM 3, ContactGraspNet and PyRoki IK in a sandbox; on RoboTwin, a fast
-        reflex model; on the G1, the robot's own walking and arm skills.
-      </>
-    ),
   },
 ];
 
@@ -80,8 +62,8 @@ export default function Runtime() {
         <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end">
           <SectionTitle>Three lines, one contract</SectionTitle>
           <p className="lede">
-            Every method in the paper, REA and the baselines alike, is a configuration of one runtime with three levels. They meet only at
-            boundaries, which is also what makes the comparison fair: identical tasks, seeds, initial states and budgets for every arm.
+            Every method in the paper, REA and the baselines alike, is a configuration of one runtime with three levels that meet only at
+            boundaries.
           </p>
         </div>
 
@@ -108,7 +90,7 @@ export default function Runtime() {
                   <div className="flex items-center gap-3">
                     <LineBadge line={g.line} size={17} />
                     <div>
-                      <p className="text-[22px] font-[760] leading-none text-ink [font-stretch:86%]">{g.role}</p>
+                      <p className="title-card leading-none text-ink">{g.role}</p>
                       <p className="mt-1 text-[13px] font-[600] text-ink-3">{LINES[g.line].system}, runs {g.runs}</p>
                     </div>
                   </div>
@@ -121,11 +103,13 @@ export default function Runtime() {
                       </li>
                     ))}
                   </ul>
-                  <p className="mt-4 text-[14px] leading-[1.5] text-ink-2">
-                    <span className="font-[700] text-ink">Never </span>
-                    {g.never}.
-                  </p>
-                  <p className="mt-auto border-t border-rule pt-4 text-[13.5px] leading-[1.55] text-ink-3 [&_b]:font-[680] [&_b]:text-ink">{g.fact}</p>
+                  {/* the rule each level keeps, level along the bottom of the three cards */}
+                  <div className="mt-auto pt-5">
+                    <p className="border-t border-rule pt-4 text-[14px] leading-[1.5] text-ink-2">
+                      <span className="font-[700] text-ink">Never </span>
+                      {g.never}.
+                    </p>
+                  </div>
                 </div>
               </SpotlightCard>
             </motion.div>

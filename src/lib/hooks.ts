@@ -14,6 +14,20 @@ export function useNearViewport<T extends Element>(margin = '200px'): [RefObject
   return [ref, near];
 }
 
+/** true while at least `threshold` of the element is on screen */
+export function useInView<T extends Element>(threshold = 0.35): [RefObject<T | null>, boolean] {
+  const ref = useRef<T | null>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return [ref, inView];
+}
+
 /** becomes true the first time the element enters the viewport and stays true */
 export function useSeenOnce<T extends Element>(threshold = 0.25): [RefObject<T | null>, boolean] {
   const ref = useRef<T | null>(null);

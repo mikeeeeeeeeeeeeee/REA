@@ -81,7 +81,7 @@ export function Soon({ children = 'soon' }: { children?: ReactNode }) {
 /** A section title in station-sign type; its words rise into place the first time it is seen. */
 export function SectionTitle({ children, className = '' }: { children: string; className?: string }) {
   return (
-    <h2 className={`sign-xl text-[clamp(2.8rem,6vw,5.6rem)] text-ink ${className}`}>
+    <h2 className={`sign-xl title-section text-ink ${className}`}>
       <SplitText text={children} tag="span" splitType="words" effect="rise" delay={55} duration={0.75} threshold={0.2} textAlign="left" className="block" />
     </h2>
   );

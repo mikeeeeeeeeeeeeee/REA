@@ -58,9 +58,8 @@ export default function Results() {
         <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end">
           <SectionTitle>Five questions, 30,000 episodes</SectionTitle>
           <p className="lede">
-            Every simulated comparison runs on identical episodes: the same tasks, seeds, initial states, horizons and budgets, the same frozen
-            skill bytes wherever arms share a library, and one read of the success predicate after the last run. The real-robot trials are judged
-            on site and compared with Fisher exact tests.
+            Every simulated comparison runs on identical episodes: the same tasks, seeds, initial states and budgets, the same frozen skills, and
+            one read of the success predicate after the last run.
           </p>
         </div>
 
@@ -125,7 +124,7 @@ function QHead({ id, q, title, children }: { id: string; q: string; title: strin
         <LineBadge line="s1" size={12} />
         {q}
       </p>
-      <h3 className="sign-lg mt-2.5 text-[clamp(1.9rem,3.2vw,2.9rem)] text-ink">{title}</h3>
+      <h3 className="sign-lg title-part mt-2.5 text-ink">{title}</h3>
       <div className="mt-4 max-w-[68ch] space-y-3 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">{children}</div>
     </header>
   );
@@ -161,9 +160,8 @@ function Q1() {
     <div>
       <QHead id="q1" q="Q1" title="Routing beats every skill author in its own pool">
         <p>
-          Choosing one author for all 60 tasks picks the Agents SDK programs, 94.7%. Route memory chooses <b>per task</b>, on the same
-          development seeds, and reaches <b>95.9%</b>, within 1 pp of a hindsight oracle, with <b>25% fewer steps per success</b>. A
-          zero-shot VLM that picks every move itself solves 2.6%.
+          The best single author solves 94.7%. Route memory chooses <b>per task</b> and reaches <b>95.9%</b>, within 1 pp of a hindsight
+          oracle, with <b>25% fewer steps per success</b>.
         </p>
       </QHead>
       <div className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
@@ -208,9 +206,8 @@ function Q2() {
     <div>
       <QHead id="q2" q="Q2" title="The brain stays off the critical path">
         <p>
-          An advisor the router waits for is asked only 1.7 times per episode, yet it leaves the control path idle <b>2.62 s per episode</b>,
-          20% of its control time, and wins nothing. Route memory removes the wait at its source: <b>REA-M is the fastest timed arm</b>, 25%
-          faster than the advisor and 17% faster than the best author alone. Both run a control step in 10.3 to 10.4 ms; of REA-M's 3.37 s lead, 2.62 s is the advisor's wait and 0.75 s comes from 83 fewer control steps.
+          An advisor the router waits for leaves the control path idle <b>2.62 s per episode</b> and wins nothing. <b>REA-M is the fastest
+          timed arm</b>: 25% faster than the advisor and 17% faster than the best author alone.
         </p>
       </QHead>
       <ChartFrame
@@ -279,9 +276,8 @@ function Q3() {
     <div>
       <QHead id="q3" q="Q3" title="It lifts skills from very different authors">
         <p>
-          The router helps whoever wrote the skills. On ASPIRE's Fix-loop programs, route memory alone adds <b>+5.6 pp</b>, mostly by running
-          the Evo program first where development favoured it; the judge gate adds a further <b>+3.1 pp</b> at 2.1× the wall time per success.
-          On zero-shot GPT-6 skills, a library three times weaker, REA-V adds <b>+7.0 pp</b>.
+          On ASPIRE's Fix-loop programs, route memory alone adds <b>+5.6 pp</b> and the judge gate a further <b>+3.1 pp</b>, at 2.1× the
+          wall time per success. On zero-shot GPT-6 skills, a library three times weaker, REA-V adds <b>+7.0 pp</b>.
         </p>
       </QHead>
       <div className="mt-8 grid gap-5 md:grid-cols-2">
@@ -328,9 +324,9 @@ function Q4() {
     <div>
       <QHead id="q4" q="Q4" title="Where the gains come from">
         <p>
-          On a hard subset chosen for failures of the reference skill, only the full router beats the best single skill. Both modules matter:
-          without route memory the judge has to find the better skill by trial and error, and with an exception gate instead of the judge the
-          router loses <b>15.3 pp</b>. Re-running blindly barely helps, and can undo a success.
+          On a hard subset chosen for failures of the reference skill, only the full router beats the best single skill. Both modules
+          contribute: without route memory the judge must find the better skill by trial and error, and an exception gate instead of the
+          judge costs <b>15.3 pp</b>.
         </p>
       </QHead>
       <ChartFrame
@@ -365,7 +361,7 @@ function PlacementExplorer() {
       table={{ head: ['Where System 2 sits', 'Configuration', 'Calls / ep', 'S2 s / ep', 'Success (%)', 'b : c vs REA-M'], rows: PLACEMENT.map((x) => [x.where, x.config, x.calls, x.s2, x.success, x.bc || '–']) }}
     >
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-[19px] font-[760] leading-tight text-ink [font-stretch:86%]">{p.where}</p>
+        <p className="title-card text-ink">{p.where}</p>
         <p className="text-right text-[13px] text-ink-3">{p.config}</p>
       </div>
       <div className="mt-4">
@@ -470,8 +466,7 @@ function Attribution() {
           ))}
         </ul>
         <p className="mt-4 text-[13.5px] leading-[1.55] text-ink-3">
-          Its <b className="font-[700] text-ink">done</b> is precise (0.905 on LIBERO-Pro), and re-running a finished task rarely breaks it: re-runs convert
-          19% of failed first runs and undo 9% of successes. Net: <b className="font-[700] text-ink">{a.paired}</b> episodes, p = {a.p}.
+          Re-runs convert 19% of failed first runs and undo 9% of successes. Net: <b className="font-[700] text-ink">{a.paired}</b> episodes, p = {a.p}.
         </p>
       </div>
     </ChartFrame>
@@ -484,9 +479,8 @@ function Q5() {
     <div>
       <QHead id="q5" q="Q5" title="Other simulators and a real robot">
         <p>
-          The runtime moved to BEHAVIOR-1K with only a new backend, to RoboTwin 2.0 with a fast reflex model as the skill, and to a real
-          Unitree G1. It solves the most episodes on all three. On RoboTwin, run side by side with the Codex CLI on the same night, it solved{' '}
-          <b>97 against 75</b> scenes (p = 0.007); on the G1, <b>8 of 10</b> trials against 5 for the next method.
+          It solves the most episodes on BEHAVIOR-1K, RoboTwin 2.0 and a real Unitree G1. On RoboTwin, run side by side with the Codex CLI
+          on the same night, it solved <b>97 against 75</b> scenes (p = 0.007).
         </p>
       </QHead>
       <div className="mt-8 grid gap-5 lg:grid-cols-3">

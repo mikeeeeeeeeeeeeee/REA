@@ -22,8 +22,7 @@ export default function Episodes() {
         <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end">
           <SectionTitle>Ride a few more episodes</SectionTitle>
           <p className="lede">
-            Six more LIBERO-Pro test episodes from the same run. In the simplest trips the first skill succeeds, the judge says done and the
-            router stops; the others show what silent failures look like, and how the ladder recovers from them.
+            Six more LIBERO-Pro test episodes from the same run, from a one-stop trip to the full ladder.
           </p>
         </div>
 

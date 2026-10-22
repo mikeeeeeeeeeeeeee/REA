@@ -34,9 +34,8 @@ export default function Closing() {
             <div>
               <SectionTitle>Take a ticket</SectionTitle>
               <p className="lede mt-5">
-                If REA is useful to your work, please cite the paper. Tear off the stub to copy the BibTeX, or copy it from the box below. The
-                runtime, the frozen skill libraries, the route memories, the judge configuration and every per-episode record will be released
-                with it.
+                If REA is useful to your work, please cite the paper: tear off the stub to copy the BibTeX. The runtime, the frozen skill libraries
+                and every per-episode record will be released with it.
               </p>
             </div>
             <div className="flex justify-center lg:justify-end">

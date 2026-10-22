@@ -39,6 +39,7 @@ Asset paths are relative (`base: './'`), so the same build works at a sub-path o
 | Colours (three lines: S2 brain, S1 router, S0 skills) | `src/index.css` and `src/theme/tokens.ts` |
 | The film: player, chapters, file names | `src/components/film/FilmPlayer.tsx`, `src/data/film.ts` |
 | The film's videos and posters | `public/film/rea-intro-*.mp4`, `src/assets/film/intro-*poster-*.webp` (made in `../intro_video`) |
+| CG clips in the four termini, and their posters | `public/cg/*` (cut from the Blender renders in `../intro_video/renders` by `../film/scripts/cg.py`), played by `src/components/cg/CgVideo.tsx` |
 
 Links that are not public yet (`arxiv`, `pdf`, `code`, `video` in `src/data/paper.ts`) are empty; the page then
 shows the button with a "soon" badge. Fill them in and push.

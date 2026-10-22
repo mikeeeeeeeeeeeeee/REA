@@ -134,8 +134,8 @@ export default function LadderBudget({ episodeId = 'tomato-2' }: { episodeId?: s
         </div>
       </div>
       <p className="border-t border-rule px-5 py-3.5 text-[13.5px] leading-[1.55] text-ink-3 sm:px-6">
-        One budget for the whole episode: every run and every judge call draws on it, so a routed episode never gets more steps or time than
-        a single skill would. Here the third run finished with {fmtInt(ep.horizon - ep.steps)} steps to spare.
+        A routed episode never gets more steps or time than a single skill would. Here the third run finished with{' '}
+        {fmtInt(ep.horizon - ep.steps)} steps to spare.
       </p>
     </div>
   );
