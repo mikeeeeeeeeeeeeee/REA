@@ -20,6 +20,7 @@ export const STOPS = [
   { id: 'episodes', label: 'Episodes' },
   { id: 'results', label: 'Results' },
   { id: 'embodiments', label: 'Embodiments' },
+  { id: 'aloha', label: 'ALOHA' },
   { id: 'cite', label: 'Cite' },
 ];
 

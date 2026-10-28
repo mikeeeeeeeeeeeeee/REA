@@ -40,6 +40,8 @@ Asset paths are relative (`base: './'`), so the same build works at a sub-path o
 | The film: player, chapters, file names | `src/components/film/FilmPlayer.tsx`, `src/data/film.ts` |
 | The film's videos and posters | `public/film/rea-intro-*.mp4`, `src/assets/film/intro-*poster-*.webp` (made in `../intro_video`) |
 | CG clips in the four termini, and their posters | `public/cg/*` (cut from the Blender renders in `../intro_video/renders` by `../film/scripts/cg.py`), played by `src/components/cg/CgVideo.tsx` |
+| The ALOHA real-robot study: trials, outcomes, captions | `src/data/aloha.ts`, rendered by `src/sections/Aloha.tsx` |
+| ALOHA keyframes and re-encoded clips | `public/aloha/*` (made from `../Aloha真机实验`; the originals are not in this repository) |
 
 Links that are not public yet (`arxiv`, `pdf`, `code`, `video` in `src/data/paper.ts`) are empty; the page then
 shows the button with a "soon" badge. Fill them in and push.
