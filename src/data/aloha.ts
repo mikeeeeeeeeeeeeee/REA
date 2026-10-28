@@ -1,118 +1,134 @@
 /**
  * The ALOHA real-robot study, archived 2026-10-27 (../Aloha真机实验). Every number here comes from
  * 真机实验汇总_20261027.md and the per-case 案例说明.txt; successes and failures are the original
- * human labels, nothing re-scored. The photos and videos are the raw files, resized here for the web.
+ * human labels, nothing re-scored. Photos and clips are the raw files, resized and cut for the web.
  *
- * Two protocols, reported apart because their clocks differ:
- *   alohaTable  four methods, up to three grasps per trial, no time limit
- *   pi05Table   π0.5 against REA (π0.5 + Code), both under the same recorded protocol
+ * Two studies, reported apart because their setups and clocks differ:
+ *   ALOHA_RUNS  four agents on the same arm, ten valid trials each, up to three grasps, no time limit
+ *   PI05_RUNS   π0.5 alone and π0.5 inside REA (π0.5 + Code), ten trials each
  */
 
 /** the keyframes and clips live in public/aloha, beside the CG clips; the single-file build streams them from the site */
 const BASE = import.meta.env.MODE === 'single' ? 'https://mikeeeeeeeeeeeeee.github.io/REA/' : './';
-const img = (name: string): string => `${BASE}aloha/${name}`;
+const file = (name: string): string => `${BASE}aloha/${name}`;
 
-/** the four methods of the head-to-head, in the order the summary lists them */
 export type MethodKey = 'codex' | 'agents' | 'aspire' | 'rea';
 
-export const METHODS: Record<MethodKey, { label: string; short: string; code: string }> = {
-  codex: { label: 'Codex', short: 'Codex', code: 'Codex' },
-  agents: { label: 'Agents SDK', short: 'Agents', code: 'Agents SDK' },
-  aspire: { label: 'ASPIRE', short: 'ASPIRE', code: 'ASPIRE' },
-  rea: { label: 'REA', short: 'REA', code: 'REA' },
+export const METHODS: Record<MethodKey, { label: string }> = {
+  codex: { label: 'Codex' },
+  agents: { label: 'Agents SDK' },
+  aspire: { label: 'ASPIRE' },
+  rea: { label: 'REA' },
 };
 
-/** trials 01–10 in order; true = the run placed the block and it stayed put */
+/** trials 01–10 of the four-agent study, in order */
 export const TRIALS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10'] as const;
 
 export type Run = {
   key: MethodKey;
+  /** per trial, in TRIALS order: did the block end up in the box and stay there */
   wins: boolean[];
   success: number;
-  /** mean over all ten trials, seconds */
-  mean: number;
-  /** mean over the successful trials only, seconds */
-  meanWin: number;
-  actions: number;
-  calls: number;
+  /** the summary's means over all ten trials: run time in seconds, model calls */
+  meanTime: number;
+  meanCalls: number;
 };
 
-export const ALOHA_TABLE: Run[] = [
-  { key: 'codex', wins: [1, 0, 1, 0, 0, 1, 0, 0, 1, 1].map(Boolean), success: 5, mean: 1118.2, meanWin: 1699.2, actions: 13.6, calls: 32.1 },
-  { key: 'agents', wins: [0, 0, 0, 1, 1, 1, 0, 0, 0, 1].map(Boolean), success: 4, mean: 1079.5, meanWin: 1205.4, actions: 24.5, calls: 38.1 },
-  { key: 'aspire', wins: [0, 1, 0, 1, 1, 1, 1, 1, 1, 1].map(Boolean), success: 8, mean: 1314.9, meanWin: 1222.2, actions: 30.1, calls: 35.7 },
-  { key: 'rea', wins: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map(Boolean), success: 10, mean: 1618.0, meanWin: 1618.0, actions: 34.1, calls: 41.1 },
+export const ALOHA_RUNS: Run[] = [
+  { key: 'codex', wins: [1, 0, 1, 0, 0, 1, 0, 0, 1, 1].map(Boolean), success: 5, meanTime: 1118.2, meanCalls: 32.1 },
+  { key: 'agents', wins: [0, 0, 0, 1, 1, 1, 0, 0, 0, 1].map(Boolean), success: 4, meanTime: 1079.5, meanCalls: 38.1 },
+  { key: 'aspire', wins: [0, 1, 0, 1, 1, 1, 1, 1, 1, 1].map(Boolean), success: 8, meanTime: 1314.9, meanCalls: 35.7 },
+  { key: 'rea', wins: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map(Boolean), success: 10, meanTime: 1618.0, meanCalls: 41.1 },
 ];
 
-/** the same ten trials under π0.5 and under REA, each run once by the operator */
-export const PI05_TABLE = {
-  arms: [
-    { key: 'pi05', label: 'π0.5', detail: 'step 5000', success: 3, n: 10, activeMean: 16.57, activeMedian: 16.34, fullMean: 29.36, grab: 2, place: 5 },
-    { key: 'rea', label: 'REA', detail: 'π0.5 + Code', success: 8, n: 10, activeMean: 128.89, activeMedian: 46.29, fullMean: 132.7, grab: 2, place: 0 },
-  ],
-  wins: true,
+/** what one success costs: everything the ten trials spent, divided by the trials that succeeded */
+export const perSuccess = (mean: number, success: number) => (mean * TRIALS.length) / success;
+
+export type Verdict = 'success' | 'grasp' | 'place';
+
+export const VERDICT: Record<Verdict, string> = {
+  success: 'in the box',
+  grasp: 'grasp failed',
+  place: 'not placed',
 };
 
-export type PhotoCase = {
+export type Camera = 'right_wrist' | 'head' | 'external';
+
+export type Ending = {
   id: string;
   method: MethodKey;
   trial: string;
-  outcome: 'success' | 'failure';
-  /** four observations of the trial, each with the three cameras on the rig */
-  stages: { obs: string; external: string; head: string; wrist: string }[];
+  verdict: Verdict;
+  /** start, two observations during the trial, and its end state */
+  stages: Record<Camera, string>[];
 };
 
-const photo = (id: string, stages: string[]): PhotoCase => {
+const ending = (id: string, verdict: Verdict): Ending => {
   const [method, trial] = id.split('-') as [MethodKey, string];
+  const cams: Camera[] = ['right_wrist', 'head', 'external'];
   return {
     id,
     method,
     trial,
-    outcome: id === 'codex-04' || id === 'agents-09' || id === 'aspire-03' ? 'failure' : 'success',
-    stages: stages.map((obs, i) => ({
-      obs,
-      external: img(`${id}-${i}-external.webp`),
-      head: img(`${id}-${i}-head.webp`),
-      wrist: img(`${id}-${i}-right_wrist.webp`),
-    })),
+    verdict,
+    stages: [0, 1, 2, 3].map((i) => Object.fromEntries(cams.map((c) => [c, file(`${id}-${i}-${c}.webp`)])) as Record<Camera, string>),
   };
 };
 
-/** the seven trials photographed end to end; stages are start, two during, and the end state */
-export const PHOTO_CASES: PhotoCase[] = [
-  photo('codex-09', ['00001', '00024', '00031', '00040']),
-  photo('codex-04', ['00001', '00006', '00011', '00016']),
-  photo('agents-05', ['00001', '00013', '00018', '00026']),
-  photo('agents-09', ['00001', '00015', '00028', '00042']),
-  photo('aspire-07', ['00001', '00019', '00025', '00036']),
-  photo('aspire-03', ['00001', '00009', '00017', '00019']),
-  photo('rea-09', ['00001', '00025', '00034', '00044']),
+/**
+ * The archive's failed trial for each baseline, beside REA's trial 09: all four start with the blue block
+ * next to the box. Codex 04 and Agents SDK 09 never get a grip on it; ASPIRE 03 lifts it but does not place it.
+ */
+export const ENDINGS: Ending[] = [ending('codex-04', 'grasp'), ending('agents-09', 'grasp'), ending('aspire-03', 'place'), ending('rea-09', 'success')];
+
+/** the π0.5 study, trial by trial; π0.5 keeps its original numbers after two invalid records were dropped */
+export const PI05_RUNS: { key: 'pi05' | 'rea'; label: string; detail: string; trials: [string, Verdict][] }[] = [
+  {
+    key: 'pi05',
+    label: 'π0.5',
+    detail: 'step 5000',
+    trials: [
+      ['01', 'place'],
+      ['02', 'place'],
+      ['03', 'place'],
+      ['04', 'grasp'],
+      ['05', 'grasp'],
+      ['06', 'place'],
+      ['07', 'success'],
+      ['08', 'success'],
+      ['09', 'success'],
+      ['11', 'place'],
+    ],
+  },
+  {
+    key: 'rea',
+    label: 'REA',
+    detail: 'π0.5 + Code',
+    trials: [
+      ['01', 'success'],
+      ['02', 'success'],
+      ['03', 'success'],
+      ['04', 'success'],
+      ['05', 'success'],
+      ['06', 'grasp'],
+      ['07', 'success'],
+      ['08', 'success'],
+      ['09', 'grasp'],
+      ['10', 'success'],
+    ],
+  },
 ];
 
-/** which trial has evidence behind it, so the dot matrix can say so */
-
-export type VideoCase = {
-  id: string;
-  arm: 'π0.5' | 'REA';
-  trial: string;
-  outcome: 'success' | 'failure';
-  /** seconds of the original recording */
-  duration: number;
-  /** playback multiplier applied when encoding, so the page states it */
-  speed: number;
-  src: string;
-  poster: string;
-  note: string;
+/**
+ * Trial 03 of each group on the right-wrist camera, cut to 9.4 s so that the gripper opens 6.5 s in on both:
+ * π0.5's block lands on the table beside the box, REA's inside it. Real time, nothing else edited.
+ */
+export const RELEASE = {
+  trial: '03',
+  duration: 9.4,
+  opens: 6.5,
+  clips: [
+    { key: 'pi05', label: 'π0.5', verdict: 'place' as Verdict, src: file('pi05-03-release.mp4'), poster: file('pi05-03-release.webp') },
+    { key: 'rea', label: 'REA', verdict: 'success' as Verdict, src: file('rea-03-release.mp4'), poster: file('rea-03-release.webp') },
+  ],
 };
-
-export const VIDEO_CASES: VideoCase[] = [
-  { id: 'pi05-07', arm: 'π0.5', trial: '07', outcome: 'success', duration: 20.5, speed: 1, src: `${BASE}aloha/pi05-07.mp4`, poster: img('pi05-07-poster.webp'), note: 'Placement succeeds; the whole trial runs in 20.5 s.' },
-  { id: 'rea-03', arm: 'REA', trial: '03', outcome: 'success', duration: 75.52, speed: 1, src: `${BASE}aloha/rea-03.mp4`, poster: img('rea-03-poster.webp'), note: 'Placement succeeds; the router calls Code five times.' },
-  { id: 'pi05-03', arm: 'π0.5', trial: '03', outcome: 'failure', duration: 33.57, speed: 1, src: `${BASE}aloha/pi05-03.mp4`, poster: img('pi05-03-poster.webp'), note: 'Placement fails; the trial stops at 33.6 s.' },
-  { id: 'rea-09', arm: 'REA', trial: '09', outcome: 'failure', duration: 551.53, speed: 16, src: `${BASE}aloha/rea-09.mp4`, poster: img('rea-09-poster.webp'), note: 'Grasp fails; 58 Code calls over 551 s, played at 16×.' },
-];
-
-export const VIDEO_PAIRS: { a: string; b: string; label: string }[] = [
-  { a: 'pi05-07', b: 'rea-03', label: 'Both succeed' },
-  { a: 'pi05-03', b: 'rea-09', label: 'Both fail' },
-];
