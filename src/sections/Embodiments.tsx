@@ -388,8 +388,9 @@ function BehaviorGrid() {
       sub="test instances 1–10, R1Pro, the same model for every method"
       table={{ head: ['Method', ...BEHAVIOR_TASKS.tasks, 'Total'], rows: BEHAVIOR_TASKS.rows.map((r) => [r.label, ...r.values, `${r.values.reduce((a, b) => a + b, 0)}/50`]) }}
     >
+      {/* the table at its own width, centred in the card (stretched, its spare width went to the right-aligned names) */}
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[420px] border-separate border-spacing-[3px] text-[13px]">
+        <table className="mx-auto min-w-[420px] border-separate border-spacing-[3px] text-[13px]">
           <thead>
             <tr>
               <th />
