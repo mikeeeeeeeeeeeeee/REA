@@ -5,9 +5,9 @@
  * Colour means one thing everywhere on the page:
  *   s2 = System 2, the brain (an agent; orange, as in the paper's figures)
  *   s1 = System 1, the embodied router, i.e. REA itself (purple)
- *   s0 = System 0, the skills / cerebellum (blue)
+ *   s0 = System 0, the policies / cerebellum (blue)
  *   done / fail = the judge's verdicts (always shown with an icon and a word)
- *   base1..3 = baselines and single-skill arms in charts
+ *   base1..3 = baselines and single-policy arms in charts
  * The *-glow steps are brighter, decorative light for effects only, never data marks.
  */
 export const TOKENS = {

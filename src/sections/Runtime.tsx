@@ -23,12 +23,12 @@ const GUIDE: Guide[] = [
   {
     line: 's2',
     role: 'The brain',
-    what: 'An agent. Offline it writes the skills; online it only answers questions between skills.',
-    runs: 'offline, then once per skill return',
+    what: 'An agent. Offline it generates the policies; online it only answers questions between policies.',
+    runs: 'offline, then once per policy return',
     calls: [
-      { sig: 'Author(t) → Pₜ', note: 'candidate skills for task t' },
+      { sig: 'Generate(t) → Pₜ', note: 'candidate policies for task t' },
       { sig: 'Judge(f₀, fₖ, ℓₜ) → done | not_done', note: 'first frame, current frame, instruction' },
-      { sig: 'Advise(o) → p', note: 'optional: pick a skill from text' },
+      { sig: 'Advise(o) → p', note: 'optional: recommend a policy from text' },
     ],
     never: 'emits an action, or reads simulator state, rewards or object poses',
   },
@@ -42,12 +42,12 @@ const GUIDE: Guide[] = [
       { sig: 'Lₜ = [first, other, first]', note: 'the escalation ladder' },
       { sig: 'Score()', note: 'read once, after the last run' },
     ],
-    never: 'makes a running skill wait, or reads the success predicate before the end',
+    never: 'makes a running policy wait, or reads the success predicate before the end',
   },
   {
     line: 's0',
-    role: 'The skills',
-    what: 'The cerebellum: programs, VLA policies or whole-body controllers, each running its own closed loop at native rate.',
+    role: 'The policies',
+    what: 'The cerebellum: frozen programs, VLA policies or whole-body controllers, each running its own closed loop at native rate.',
     runs: 'end to end, at their own rate',
     calls: [{ sig: 'Run(p; H − u, W − w) → (Δ, δ, e, τ)', note: 'steps and seconds used, exception, truncation' }],
     never: 'waits for the brain while it runs',
@@ -144,22 +144,22 @@ export default function Runtime() {
   );
 }
 
-// simulators and robots are backends (neutral); tools run inside the skills (S0); authors write them (S2)
+// simulators and robots are backends (neutral); tools run inside the policies (S0); policy-generation methods write them (S2)
 const BACKENDS: { name: string; role: string; color: string }[] = [
   { name: 'LIBERO-Pro', role: 'MuJoCo, robosuite', color: 'var(--ink-3)' },
   { name: 'BEHAVIOR-1K', role: 'OmniGibson, Isaac Sim', color: 'var(--ink-3)' },
   { name: 'RoboTwin 2.0', role: 'SAPIEN', color: 'var(--ink-3)' },
   { name: 'Unitree G1', role: 'real humanoid', color: 'var(--ink-3)' },
-  { name: 'SAM 3', role: 'segmentation, inside skills', color: 'var(--s0)' },
-  { name: 'ContactGraspNet', role: 'grasps, inside skills', color: 'var(--s0)' },
-  { name: 'PyRoki', role: 'inverse kinematics, inside skills', color: 'var(--s0)' },
-  { name: 'Codex CLI', role: 'writes skills', color: 'var(--s2)' },
-  { name: 'Agents SDK', role: 'writes skills', color: 'var(--s2)' },
+  { name: 'SAM 3', role: 'segmentation, inside policies', color: 'var(--s0)' },
+  { name: 'ContactGraspNet', role: 'grasps, inside policies', color: 'var(--s0)' },
+  { name: 'PyRoki', role: 'inverse kinematics, inside policies', color: 'var(--s0)' },
+  { name: 'Codex CLI', role: 'writes policies', color: 'var(--s2)' },
+  { name: 'Agents SDK', role: 'writes policies', color: 'var(--s2)' },
   { name: 'ASPIRE', role: 'Fix loop, Evo search', color: 'var(--s2)' },
 ];
 
 function GuideVisual({ line }: { line: LineId }) {
-  if (line === 's0') return <SkillFeed />;
+  if (line === 's0') return <PolicyFeed />;
   return (
     <div className="absolute inset-0">
       {line === 's2' ? <BrainCalls /> : <RouteSwitch />}
@@ -170,8 +170,8 @@ function GuideVisual({ line }: { line: LineId }) {
   );
 }
 
-/** a real skill at work: RoboTwin 2.0 head camera, one frame per decision */
-function SkillFeed() {
+/** a real policy at work: RoboTwin 2.0 head camera, one frame per decision */
+function PolicyFeed() {
   const scene = ROBOTWIN[0];
   const reduce = useReducedMotion();
   const [ref, near] = useNearViewport<HTMLDivElement>('0px');

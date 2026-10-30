@@ -4,7 +4,6 @@ import Hero from './sections/Hero';
 import Noise from './components/reactbits/Noise/Noise';
 import GradualBlur from './components/reactbits/GradualBlur/GradualBlur';
 import { useTheme } from './theme/ThemeProvider';
-import { useReducedMotion } from './lib/hooks';
 
 // everything below the hero is split into chunks that start loading right after first paint
 const loadMethod = () => import('./sections/parts/PartMethod');
@@ -16,7 +15,6 @@ const Hold = ({ h }: { h: string }) => <div style={{ minHeight: h }} aria-hidden
 
 export default function App() {
   const { theme } = useTheme();
-  const reduce = useReducedMotion();
 
   // Each part is shown with an ordinary state update once its chunk has arrived. React.lazy would retry the
   // suspended render at retry priority, which the hero's per-frame replay keeps interrupting: on a slow machine
@@ -48,8 +46,8 @@ export default function App() {
   return (
     <>
       <TopNav />
-      {/* film grain over the whole page; static when motion is reduced */}
-      <Noise fixed zIndex={60} opacity={theme === 'dark' ? 0.045 : 0.03} fps={reduce ? 0 : 10} size={1.2} contrast={0.55} blendMode="overlay" />
+      {/* film grain over the whole page, held still: a moving grain re-rolls its opacity every frame and reads as flicker on flat charts */}
+      <Noise fixed zIndex={60} opacity={theme === 'dark' ? 0.045 : 0.03} fps={0} size={1.2} contrast={0.55} blendMode="overlay" />
       {/* progressive blur along the bottom edge of the viewport, gone at the end of the page */}
       <GradualBlur target="page" position="bottom" height="4.5rem" strength={1.6} layers={5} curve="bezier" exponential opacity={1} autoHide zIndex={45} />
       <main>

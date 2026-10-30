@@ -13,10 +13,8 @@ import { scrollToId, useMediaQuery } from '@/lib/hooks';
  */
 export const STOPS = [
   { id: 'film', label: 'Film' },
-  { id: 'overview', label: 'Overview' },
   { id: 'problem', label: 'Problem' },
   { id: 'runtime', label: 'Runtime' },
-  { id: 'router', label: 'Router' },
   { id: 'episodes', label: 'Episodes' },
   { id: 'results', label: 'Results' },
   { id: 'embodiments', label: 'Embodiments' },

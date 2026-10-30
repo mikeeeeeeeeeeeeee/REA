@@ -2,14 +2,14 @@ import type { ReactNode } from 'react';
 
 /**
  * Transit-map vocabulary shared by the whole page. REA routes work between three lines:
- *   S2 the brain (orange), S1 the router (purple), S0 the skills (blue).
+ *   S2 the brain (orange), S1 the router (purple), S0 the policies (blue).
  */
 export type LineId = 's2' | 's1' | 's0';
 
 export const LINES: Record<LineId, { code: string; name: string; system: string; color: string; wash: string; glow: string }> = {
   s2: { code: 'S2', name: 'Brain', system: 'System 2', color: 'var(--s2)', wash: 'var(--s2-wash)', glow: 'var(--s2-glow)' },
   s1: { code: 'S1', name: 'Router', system: 'System 1', color: 'var(--s1)', wash: 'var(--s1-wash)', glow: 'var(--s1-glow)' },
-  s0: { code: 'S0', name: 'Skills', system: 'System 0', color: 'var(--s0)', wash: 'var(--s0-wash)', glow: 'var(--s0-glow)' },
+  s0: { code: 'S0', name: 'Policies', system: 'System 0', color: 'var(--s0)', wash: 'var(--s0-wash)', glow: 'var(--s0-glow)' },
 };
 
 /** a line badge, as on transit signage: [S2] */
@@ -21,7 +21,7 @@ export function LineBadge({ line, size = 14, className = '' }: { line: LineId; s
   );
 }
 
-/** badge + name, e.g. [S0] Skills */
+/** badge + name, e.g. [S0] Policies */
 export function LineTag({ line, children, size = 13, className = '' }: { line: LineId; children?: ReactNode; size?: number; className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
@@ -35,7 +35,7 @@ export function LineTag({ line, children, size = 13, className = '' }: { line: L
 
 /**
  * REA's mark: the three lines and an interchange across them, the one place where the brain,
- * the router and the skills meet.
+ * the router and the policies meet.
  */
 export function BrandMark({ size = 24, className = '' }: { size?: number; className?: string }) {
   return (

@@ -5,9 +5,9 @@
 /* ------------------------------------------------------------------
    REA's identity is a transit network: REA *routes* work between three
    lines, each with a line badge, like S-Bahn lines.
-     S2  the brain    (orange)  agent; writes skills offline, judges at stops
+     S2  the brain    (orange)  agent; writes policies offline, judges at stops
      S1  the router   (purple)  REA itself; dispatches, escalates, stops
-     S0  the skills   (blue)    the cerebellum; runs end to end, never waits
+     S0  the policies (blue)    the cerebellum; runs end to end, never waits
    Light = "map paper": white, black ink, signage type.
    Dark  = "night map": charcoal, the lines glow.
    Line colours were checked with the dataviz validator (all pairs, protan/
@@ -278,15 +278,6 @@
       color-mix(in srgb, var(--s2) 70%, transparent) 0 1.5px,
       transparent 1.5px 6px
     );
-  }
-  /* departure board: columns sized from the split-flap tile metrics (see DepartureBoard) */
-  .board-grid {
-    grid-template-columns: var(--g);
-  }
-  @media (min-width: 640px) {
-    .board-grid {
-      grid-template-columns: var(--gw);
-    }
   }
 }
 

@@ -7,15 +7,15 @@ import { EPISODES } from '@/data/gen/episodes';
 import { buildTimeline, fmtInt, nameOf, stateAt } from '@/lib/episode';
 
 /**
- * The brain as a line with almost no service. The skill train runs its own closed loop (one tick
+ * The brain as a line with almost no service. The policy train runs its own closed loop (one tick
  * per hundred control steps, the line being the episode's step budget) and meets the brain only
- * where a skill returns: one interchange per run, where the brain looks and answers.
- * Steps, skills and verdicts are the run logs of test episodes shown elsewhere on this page.
+ * where a policy returns: one interchange per run, where the brain looks and answers.
+ * Steps, policies and verdicts are the run logs of test episodes shown elsewhere on this page.
  */
 const W = 400;
 const H = 250;
 const YB = 104; // brain line
-const YS = 168; // skill line
+const YS = 168; // policy line
 const XL = 44; // both lines start right of their badges
 const XA = 62; // step 0
 const XE = 364; // the end of the step budget
@@ -97,7 +97,7 @@ export default function BrainCalls() {
         className="h-full w-full"
         preserveAspectRatio="xMidYMid meet"
         role="img"
-        aria-label={`“${ep.instruction}”: ${fmtInt(ep.steps)} control steps, and the brain was asked ${ep.judges.length} ${ep.judges.length === 1 ? 'time' : 'times'}, once per returning skill`}
+        aria-label={`“${ep.instruction}”: ${fmtInt(ep.steps)} control steps, and the brain was asked ${ep.judges.length} ${ep.judges.length === 1 ? 'time' : 'times'}, once per returning policy`}
       >
         <defs>
           <pattern id={`bc-grid-${uid}`} width="20" height="20" patternUnits="userSpaceOnUse">
@@ -111,7 +111,7 @@ export default function BrainCalls() {
         <path d={`M ${XL} ${YS} L ${XE} ${YS}`} stroke={t.s0} strokeOpacity={0.25} strokeWidth={9} strokeLinecap="round" />
         <path d={`M ${XL} ${YS} L ${trainX} ${YS}`} stroke={t.s0} strokeWidth={9} strokeLinecap="round" opacity={fade} />
 
-        {/* the skill's own loop: a tick per hundred control steps */}
+        {/* the policy's own loop: a tick per hundred control steps */}
         {TICKS.map((st) => {
           const on = st <= s.steps;
           return <rect key={st} x={xOf(st) - 0.8} y={YS + 5} width={1.6} height={6} rx={0.8} fill={on ? t.s0g : '#ffffff'} opacity={on ? 0.9 * fade + 0.14 * (1 - fade) : 0.14} />;
@@ -126,7 +126,7 @@ export default function BrainCalls() {
           {/* start */}
           <circle cx={XA} cy={YS} r={6} fill={PANEL} stroke="#ffffff" strokeWidth={2.5} />
 
-          {/* interchanges: only where a skill returned */}
+          {/* interchanges: only where a policy returned */}
           {ep.runs.map((run, i) => {
             if (!returned(i)) return null;
             const x = xOf(run.to);
@@ -180,7 +180,7 @@ export default function BrainCalls() {
             );
           })}
 
-          {/* which skill ran where */}
+          {/* which policy ran where */}
           {ep.runs.map((run, i) => {
             const started = s.run > i || (s.run === i && s.phase !== 'dispatch');
             const running = s.run === i && s.phase === 'run';
@@ -199,7 +199,7 @@ export default function BrainCalls() {
             );
           })}
 
-          {/* the skill train */}
+          {/* the policy train */}
           <g transform={`translate(${trainX} ${YS})`} style={{ filter: `drop-shadow(0 0 8px ${t.s0g})` }}>
             <rect x={-20} y={-9} width={40} height={18} rx={9} fill={t.s0} stroke="#ffffff" strokeWidth={2.5} />
             {[-9, 0, 9].map((dx) => (

@@ -157,7 +157,8 @@ export function HBars({
   useEffect(() => {
     const el = boxRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => setBoxW(e.contentRect.width));
+    // the whole box, label column included: measured without its padding, the clamp below would feed on itself
+    const ro = new ResizeObserver(([e]) => setBoxW(e.borderBoxSize?.[0]?.inlineSize ?? e.contentRect.width));
     ro.observe(el);
     return () => ro.disconnect();
   }, []);

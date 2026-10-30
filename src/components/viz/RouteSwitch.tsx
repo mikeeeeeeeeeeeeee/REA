@@ -5,7 +5,7 @@ import { EPISODES } from '@/data/gen/episodes';
 
 /**
  * The router as a set of points (a railway switch). For each task, route memory's development
- * evidence throws the switch to Fix or Evo before the skill train arrives; nothing waits.
+ * evidence throws the switch to Fix or Evo before the policy train arrives; nothing waits.
  * Evidence: the route records of test episodes on this page.
  */
 const CASES = ['stove-23', 'butter-21', 'bowl-stove-18'].map((id) => {
@@ -91,7 +91,7 @@ export default function RouteSwitch() {
         </defs>
         <rect width={W} height={H} fill="url(#rs-grid)" />
 
-        {/* the two skill tracks */}
+        {/* the two policy tracks */}
         {(['fix', 'evo'] as const).map((which) => {
           const y = which === 'fix' ? TOP : BOT;
           const on = chosen(which);
@@ -116,7 +116,7 @@ export default function RouteSwitch() {
         </g>
         <circle cx={J.x} cy={J.y} r={10} fill="#0b0e14" stroke="#ffffff" strokeWidth={3} />
 
-        {/* the skill train */}
+        {/* the policy train */}
         {trainOn && (
           <g transform={`translate(${tx} ${ty})`} style={{ filter: `drop-shadow(0 0 8px ${t.s0g})` }}>
             <rect x={-20} y={-9} width={40} height={18} rx={9} fill={t.s0} stroke="#ffffff" strokeWidth={2.5} />

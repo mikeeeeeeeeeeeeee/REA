@@ -8,9 +8,9 @@ import type { Episode } from '@/data/types';
 
 /**
  * The hero figure: one real test episode drawn as a transit map.
- *   S2 (orange) the brain, S1 (purple) the router, S0 (blue) the skills.
- * Stations on S0 are the camera frames at each skill boundary. The skill train runs every
- * segment end to end; the brain only calls at interchanges, after a skill has returned.
+ *   S2 (orange) the brain, S1 (purple) the router, S0 (blue) the policies.
+ * Stations on S0 are the camera frames at each policy boundary. The policy train runs every
+ * segment end to end; the brain only calls at interchanges, after a policy has returned.
  * Frames, verdicts, rationales, steps and times come from the episode's run log.
  */
 
@@ -18,7 +18,7 @@ const W = 1360;
 const H = 452;
 const Y = { s2: 112, s1: 200, s0: 322 };
 const XL = 86;
-/** station x positions: the start plus one station per skill run, spread over the same span */
+/** station x positions: the start plus one station per policy run, spread over the same span */
 const stationsFor = (runs: number) => Array.from({ length: runs + 1 }, (_, i) => 236 + (runs ? (948 * i) / runs : 0));
 const R = 60;
 const XEND = 1296;
@@ -79,7 +79,7 @@ function MapSvg({ episode, s }: { episode: Episode; s: S }) {
   const verdictShown = (j: number) => s.verdicts >= j; // j = 1..3
   const judging = s.phase === 'judge' ? s.run + 1 : -1;
 
-  // the skill train: runs between stations, passes behind a station during the verdict hold
+  // the policy train: runs between stations, passes behind a station during the verdict hold
   let trainX = XS[0] + R + 14;
   if (s.phase === 'run') trainX = XS[s.run] + R + 14 + (XS[s.run + 1] - R - 14 - (XS[s.run] + R + 14)) * s.k;
   else if (s.phase === 'judge') trainX = XS[s.run + 1] - R - 14;
@@ -110,7 +110,7 @@ function MapSvg({ episode, s }: { episode: Episode; s: S }) {
       <path d={`M ${XL} ${Y.s2} H ${XS[last] + 52}`} stroke={t.s2} strokeWidth={12} strokeLinecap="round" fill="none" style={{ filter: glow(t.s2g) }} className="jm-draw" />
       <path d={`M ${XL} ${Y.s1} H ${XEND}`} stroke={t.s1} strokeWidth={12} strokeLinecap="round" fill="none" style={{ filter: glow(t.s1g), animationDelay: '0.12s' }} className="jm-draw" />
       <path d={`M ${XL} ${Y.s0} H ${XS[last]}`} stroke={t.s0} strokeWidth={12} strokeLinecap="round" fill="none" style={{ filter: glow(t.s0g), animationDelay: '0.24s' }} className="jm-draw" />
-      {/* offline: the brain wrote the skill library before the episode */}
+      {/* offline: the brain wrote the policy library before the episode */}
       <path
         d={`M ${XL - 30} ${Y.s2 + 18} C ${XL - 64} ${Y.s2 + 90}, ${XL - 64} ${Y.s0 - 90}, ${XL - 30} ${Y.s0 - 18}`}
         stroke={t.s2}
@@ -121,10 +121,10 @@ function MapSvg({ episode, s }: { episode: Episode; s: S }) {
         opacity={0.75}
       />
       <text x={XL - 62} y={(Y.s2 + Y.s0) / 2} textAnchor="middle" fill={t.ink3} transform={`rotate(-90 ${XL - 62} ${(Y.s2 + Y.s0) / 2})`} dy={-8} style={{ fontSize: 13, fontWeight: 600, fontStretch: '88%' }}>
-        skills written offline
+        policies written offline
       </text>
 
-      {/* segment labels on the skill line */}
+      {/* segment labels on the policy line */}
       {episode.runs.map((run, i) => {
         const x = (XS[i] + XS[i + 1]) / 2;
         const done = s.run > i || (s.run === i && s.phase !== 'run' && s.phase !== 'dispatch');
@@ -145,7 +145,7 @@ function MapSvg({ episode, s }: { episode: Episode; s: S }) {
         );
       })}
 
-      {/* interchanges: where the lines meet, only at skill boundaries */}
+      {/* interchanges: where the lines meet, only at policy boundaries */}
       {XS.map((x, i) => {
         const top = i === 0 ? Y.s1 - 18 : Y.s2 - 18;
         const hot = judging === i;
@@ -170,7 +170,7 @@ function MapSvg({ episode, s }: { episode: Episode; s: S }) {
         <circle cx={XS[judging]} cy={Y.s2 + (Y.s0 - R - 8 - Y.s2) * (1 - Math.abs(1 - 2 * s.k))} r={8} fill={t.s2} style={{ filter: `drop-shadow(0 0 8px ${t.s2g})` }} />
       )}
 
-      {/* the skill train */}
+      {/* the policy train */}
       <g transform={`translate(${trainX} ${Y.s0})`} style={{ filter: trainActive ? `drop-shadow(0 0 10px ${t.s0g})` : 'none' }}>
         <rect x={-TRAIN.w / 2} y={-TRAIN.h / 2} width={TRAIN.w} height={TRAIN.h} rx={TRAIN.h / 2} fill={t.s0} stroke={station} strokeWidth={3} />
         {[-14, 0, 14].map((dx) => (
@@ -241,7 +241,7 @@ function MapSvg({ episode, s }: { episode: Episode; s: S }) {
       {/* termini */}
       <Terminus x={XL} y={Y.s2} color={t.s2} station={station} icon={Brain02Icon} label="Brain" sub="System 2" above dark={dark} />
       <Terminus x={XL} y={Y.s1} color={t.s1} station={station} icon={DatabaseIcon} label="Route memory" sub="System 1" dark={dark} />
-      <Terminus x={XL} y={Y.s0} color={t.s0} station={station} icon={File02Icon} label="Skill library" sub="System 0" dark={dark} />
+      <Terminus x={XL} y={Y.s0} color={t.s0} station={station} icon={File02Icon} label="Policy library" sub="System 0" dark={dark} />
       <g transform={`translate(${XEND} ${Y.s1})`}>
         <circle r={26} fill={s.done ? t.done : station} stroke={s.done ? t.done : ink} strokeWidth={3} style={{ transition: 'fill .4s, stroke .4s' }} />
         <g transform="translate(-11 -11)" style={{ opacity: s.done ? 1 : 0.35 }}>

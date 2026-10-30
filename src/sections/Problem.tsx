@@ -1,11 +1,15 @@
 import { motion } from 'motion/react';
 import { Alert02Icon, Tick02Icon, ViewOffSlashIcon } from '@hugeicons/core-free-icons';
-import ElectricBorder from '@/components/reactbits/ElectricBorder/ElectricBorder';
-import GlitchText from '@/components/reactbits/GlitchText/GlitchText';
 import CouplingStrip, { type CouplingMode } from '@/components/viz/CouplingStrip';
 import Icon, { type IconSvg } from '@/components/ui/Icon';
 import { Container, SectionTitle } from '@/components/ui/Layout';
 import { useTheme } from '@/theme/ThemeProvider';
+
+/** row C's two strips: REA in sync mode (the judge at each return) and in async mode (the brain in parallel) */
+const REA_MODES: { mode: CouplingMode; label: string }[] = [
+  { mode: 'rea', label: 'Sync mode' },
+  { mode: 'async', label: 'Async mode' },
+];
 
 type Row = {
   mode: CouplingMode;
@@ -21,7 +25,7 @@ const ROWS: Row[] = [
   {
     mode: 'agent',
     code: 'A',
-    title: 'The agent calls the skills',
+    title: 'The agent calls the fast policy',
     status: 'Delays on every step',
     tone: 'bad',
     icon: Alert02Icon,
@@ -33,9 +37,9 @@ const ROWS: Row[] = [
     ),
   },
   {
-    mode: 'skill',
+    mode: 'policy',
     code: 'B',
-    title: 'The skills call the agent on errors',
+    title: 'The fast policy calls the agent on errors',
     status: 'Silent failures missed',
     tone: 'warn',
     icon: ViewOffSlashIcon,
@@ -54,7 +58,8 @@ const ROWS: Row[] = [
     icon: Tick02Icon,
     stat: (
       <>
-        Dispatch is a lookup and the judge is asked only when a skill returns: <b>no running skill waits on the brain</b>.
+        Sync: the judge is asked only when a policy returns, <b>+3.1 pp success</b> over an exception gate. Async: the brain thinks in
+        parallel and its advice applies at the next boundary, <b>2.62 → 0 s</b> of blocking per episode and 11.3% lower control time.
       </>
     ),
   },
@@ -69,13 +74,13 @@ export default function Problem() {
           <SectionTitle>Where should the brain sit?</SectionTitle>
           <p className="lede">
             A foundation model is a capable brain but a poor controller: emitting actions itself, it solved <b>1 of 1,987</b> LIBERO-Pro
-            episodes. Fast skills act at their own rate but cannot tell when they have quietly failed.
+            episodes. Fast policies act at their own rate but cannot tell when they have quietly failed.
           </p>
         </div>
 
         <div className="figure-frame mt-14 overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rule px-6 py-4">
-            <p className="text-[17px] font-[760] text-ink [font-stretch:88%]">Service status: three ways to couple a slow brain with fast skills</p>
+            <p className="text-[17px] font-[760] text-ink [font-stretch:88%]">Service status: three ways to couple a slow brain with fast policies</p>
             <p className="label">Measured on LIBERO-Pro, schematic timelines after the paper's Figure 3</p>
           </div>
           {ROWS.map((r, i) => {
@@ -102,34 +107,39 @@ export default function Problem() {
                     }}
                   >
                     <Icon icon={r.icon} size={15} stroke={2.2} />
-                    {r.mode === 'skill' ? (
-                      <GlitchText mode="rgb" intensity={0.3} speed={0.6} enableShadows enableOnHover={false} color="#ffffff" shadowColors={['#ffd25e', '#62b0ff']} className="!inline !text-[13.5px] !font-[700]">
-                        {r.status}
-                      </GlitchText>
-                    ) : (
-                      r.status
-                    )}
+                    {r.status}
                   </div>
                   <p className="mt-3 text-[15.5px] leading-[1.6] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">{r.stat}</p>
                 </div>
                 <div className="-mx-6 overflow-x-auto px-6 lg:mx-0 lg:overflow-visible lg:px-0">
                   <div className="min-w-[600px] lg:min-w-0">
-                    <CouplingStrip mode={r.mode} />
+                    {r.mode === 'rea' ? (
+                      <div className="space-y-4">
+                        {REA_MODES.map((m) => (
+                          <div key={m.mode}>
+                            <p className="mb-1 text-[13px] font-[720] text-ink-2 [font-stretch:90%]">{m.label}</p>
+                            <CouplingStrip mode={m.mode} />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <CouplingStrip mode={r.mode} />
+                    )}
                   </div>
                 </div>
               </motion.div>
             );
             return r.tone === 'good' ? (
-              <ElectricBorder key={r.code} color={t.done} theme={theme} borderRadius={0} thickness={1.2} chaos={0.3} speed={0.6} glow={theme === 'dark' ? 0.6 : 0.3}>
+              <div key={r.code} className="relative shadow-[inset_0_0_0_1.5px_var(--done)]">
                 {body}
-              </ElectricBorder>
+              </div>
             ) : (
               <div key={r.code}>{body}</div>
             );
           })}
           <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-rule px-6 py-3.5 text-[13px] text-ink-3">
             <span className="inline-flex items-center gap-2">
-              <span className="h-3 w-6 rounded-full bg-s0" /> skill running
+              <span className="h-3 w-6 rounded-full bg-s0" /> policy running
             </span>
             <span className="inline-flex items-center gap-2">
               <span className="h-3 w-6 rounded-full bg-s2" /> brain thinking
@@ -139,6 +149,9 @@ export default function Problem() {
             </span>
             <span className="inline-flex items-center gap-2">
               <span className="h-3.5 w-2.5 rounded-full border-2 border-ink bg-[var(--station)]" /> router decision at a boundary
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-0 w-6 border-t-[1.5px] border-dashed border-ink-3" /> advice, applied at the next boundary
             </span>
           </div>
         </div>

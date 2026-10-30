@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import { PauseIcon, PlayIcon, PlayCircleIcon } from '@hugeicons/core-free-icons';
 import ElasticSlider from '@/components/reactbits/ElasticSlider/ElasticSlider';
 import JellyRadio from '@/components/reactbits/JellyRadio/JellyRadio';
-import TextType from '@/components/reactbits/TextType/TextType';
-import CgVideo, { CgChip } from '@/components/cg/CgVideo';
 import Icon from '@/components/ui/Icon';
 import { Container, SectionTitle } from '@/components/ui/Layout';
 import { LineBadge } from '@/components/ui/Line';
@@ -14,32 +12,23 @@ import { LINKS } from '@/data/paper';
 import { BEHAVIOR } from '@/data/gen/behavior';
 import { ROBOTWIN } from '@/data/gen/robotwin';
 import { G1_FRONT, G1_SIDE } from '@/data/gen/g1';
+import CLOCKS from '@/data/gen/page-videos.json';
 import { useTheme } from '@/theme/ThemeProvider';
-import type { CgClip } from '@/data/cg';
-import { useInView, useNearViewport, useReducedMotion, useSeenOnce } from '@/lib/hooks';
+import { useNearViewport, useReducedMotion, useSeenOnce } from '@/lib/hooks';
 
-/** the four termini: where REA ran, what it solved there, and the CG clip that stands for it */
-const TERMINI: { clip: CgClip; bench: string; score: string; unit: string; task: string }[] = [
-  { clip: 'bowl', bench: 'LIBERO-Pro', score: '2,876 / 3,000', unit: 'test episodes, MuJoCo', task: 'Put the bowl on the stove' },
-  { clip: 'behavior', bench: 'BEHAVIOR-1K', score: '27 / 50', unit: 'test episodes, Isaac Sim', task: 'A mobile R1Pro picks things up' },
-  { clip: 'robotwin', bench: 'RoboTwin 2.0', score: '133 / 200', unit: 'bimanual scenes, SAPIEN', task: 'Lift the pot with both arms' },
-  { clip: 'g1', bench: 'Unitree G1', score: '8 / 10', unit: 'real trials, operator-judged', task: 'Walk to a chair and push it' },
-];
+/** the sped-up videos live in public/; the single-file build streams them from the published site */
+const BASE = import.meta.env.MODE === 'single' ? 'https://mikeeeeeeeeeeeeee.github.io/REA/' : './';
 
 export default function Embodiments() {
   return (
     <section id="embodiments" className="relative scroll-mt-20 py-24 sm:py-32">
       <Container wide>
         <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end">
-          <SectionTitle>Four termini, one runtime</SectionTitle>
-          <p className="lede">
-            The same three-level contract on three simulators and a real humanoid; on each, REA solves the most episodes of the compared methods.
-          </p>
+          <SectionTitle>One runtime, real and simulated</SectionTitle>
+          <p className="lede">The same three-level contract drives a real Unitree G1 humanoid and two more simulators.</p>
         </div>
 
-        <TerminiStage />
-
-        <div className="mt-24 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div className="mt-14 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
           <div>
             <p className="flex items-center gap-2 text-[14px] font-[700] text-ink-3 [font-stretch:92%]">
               <LineBadge line="s0" size={12} /> Real robot
@@ -47,7 +36,7 @@ export default function Embodiments() {
             <h3 className="sign-lg title-part mt-2.5 text-ink">A Unitree G1 walks to a chair and pushes it</h3>
             <div className="mt-4 space-y-3 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
               <p>
-                Every method gets the same robot, model and four skills: walk forward, the native two-arm push, release, stop. REA succeeded in{' '}
+                Every method gets the same robot, model and four policies: walk forward, the native two-arm push, release, stop. REA succeeded in{' '}
                 <b>8 of 10</b> trials, against 5 for an Agents SDK agent, 4 for Codex and 2 for ASPIRE's code-as-policy.
               </p>
               <p>
@@ -60,7 +49,7 @@ export default function Embodiments() {
           <G1Player />
         </div>
 
-        {/* the two simulators: a heading row, then the RoboTwin replay and the BEHAVIOR-1K table side by side, one height */}
+        {/* the two simulators: a heading row, then the RoboTwin video and the BEHAVIOR-1K table side by side */}
         <div className="mt-24 grid gap-x-12 gap-y-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-end">
           <div>
             <p className="flex items-center gap-2 text-[14px] font-[700] text-ink-3 [font-stretch:92%]">
@@ -70,8 +59,7 @@ export default function Embodiments() {
           </div>
           <div className="space-y-3 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
             <p>
-              RoboTwin 2.0 has no skill library, so a fast reflex model is the System 0 skill and the router hands single decisions to a
-              deliberate model.
+              On RoboTwin 2.0 a fast reflex model is the System 0 policy, and the router hands single decisions to a deliberate model.
             </p>
             <p>
               On BEHAVIOR-1K, a mobile R1Pro starts metres from the object it has to find and pick up; REA ran with the same tools, model and 1,500 s
@@ -80,163 +68,11 @@ export default function Embodiments() {
           </div>
         </div>
         <div className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-          <RoboTwinReplay />
+          <RoboTwinVideo />
           <BehaviorGrid />
         </div>
       </Container>
     </section>
-  );
-}
-
-const RING = 2 * Math.PI * 19;
-
-/**
- * The four termini as stations on REA's line, above a stage that plays each one's CG clip in turn: a ring round the
- * station shows how far its clip has got, and when the clip ends the line runs on to the next. A click on a station
- * goes there. Nothing downloads until the stage is near; with reduced motion it shows each clip's first frame.
- */
-function TerminiStage() {
-  const reduce = useReducedMotion();
-  const [nearRef, near] = useNearViewport<HTMLDivElement>('500px');
-  const [viewRef, inView] = useInView<HTMLDivElement>(0.4);
-  const [cur, setCur] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [loaded, setLoaded] = useState<ReadonlySet<number>>(() => new Set());
-  const videos = useRef<(HTMLVideoElement | null)[]>([]);
-  const ring = useRef<SVGCircleElement | null>(null);
-  const hold = useRef(0);
-  const play = inView && !paused && !reduce;
-  const n = TERMINI.length;
-
-  // the current clip and the next may download; a clip that has loaded stays loaded
-  useEffect(() => {
-    if (!near || reduce) return;
-    setLoaded((s) => (s.has(cur) && s.has((cur + 1) % n) ? s : new Set([...s, cur, (cur + 1) % n])));
-  }, [near, reduce, cur, n]);
-
-  // the ring round the current station follows its clip
-  useEffect(() => {
-    let raf = 0;
-    const tick = () => {
-      const v = videos.current[cur];
-      if (ring.current) ring.current.style.strokeDashoffset = String(RING * (1 - (v && v.duration ? v.currentTime / v.duration : 0)));
-      if (play) raf = requestAnimationFrame(tick);
-    };
-    tick();
-    return () => cancelAnimationFrame(raf);
-  }, [play, cur]);
-
-  useEffect(() => () => window.clearTimeout(hold.current), []);
-
-  const go = (k: number) => {
-    window.clearTimeout(hold.current);
-    const v = videos.current[k];
-    if (v && v.readyState > 0) v.currentTime = 0;
-    setCur(k);
-  };
-  // a clip that has ended holds its last frame for a moment, then the line runs on
-  const ended = (k: number) => {
-    if (k === cur) hold.current = window.setTimeout(() => go((k + 1) % n), 900);
-  };
-  const tm = TERMINI[cur];
-
-  return (
-    <div ref={nearRef} className="mt-14 grid gap-x-12 gap-y-8 xl:grid-cols-[minmax(0,3fr)_minmax(0,10fr)]">
-      {/* the line and its termini: across the top on small screens, down the side on large ones */}
-      <ol className="grid grid-cols-4 xl:flex xl:flex-col xl:py-1" aria-label="Termini">
-        {TERMINI.map((x, k) => {
-          const here = k === cur;
-          return (
-            <li key={x.clip} className="relative xl:flex-1">
-              {k < n - 1 && (
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute left-1/2 top-[13px] h-[8px] w-full rounded-full transition-colors duration-500 xl:left-[13px] xl:top-[17px] xl:h-full xl:w-[8px]"
-                  style={{ background: k < cur ? 'var(--s1)' : 'var(--rule-2)' }}
-                />
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  setPaused(false);
-                  go(k);
-                }}
-                aria-pressed={here}
-                aria-label={`${x.bench}: ${x.score}, ${x.unit}`}
-                className="group relative flex w-full flex-col items-center px-1 text-center xl:flex-row xl:items-start xl:gap-5 xl:px-0 xl:text-left"
-              >
-                <span className="relative grid h-[34px] w-[34px] shrink-0 place-items-center">
-                  {here && !reduce && (
-                    <svg className="absolute -inset-[6px] -rotate-90" viewBox="0 0 46 46" aria-hidden>
-                      <circle ref={ring} cx="23" cy="23" r="19" fill="none" stroke="var(--s1)" strokeWidth="3" strokeLinecap="round" strokeDasharray={RING} strokeDashoffset={RING} />
-                    </svg>
-                  )}
-                  <span
-                    className="h-[26px] w-[26px] rounded-full border-[5px] border-ink transition-[background-color,transform] duration-300 group-hover:scale-110"
-                    style={{ background: k <= cur ? 'var(--s1)' : 'var(--station)' }}
-                  />
-                </span>
-                <span className="mt-3 flex flex-col items-center xl:mt-0 xl:items-start xl:pt-[5px]">
-                  <span className={`text-[14px] font-[760] leading-tight transition-colors [font-stretch:86%] sm:text-[17px] ${here ? 'text-ink' : 'text-ink-3 group-hover:text-ink'}`}>
-                    {x.bench}
-                  </span>
-                  <span className={`tabular mt-1 whitespace-nowrap text-[13px] font-[780] leading-none transition-colors [font-stretch:84%] sm:mt-1.5 sm:text-[clamp(1.25rem,2vw,1.75rem)] ${here ? 'text-ink' : 'text-ink-3'}`}>
-                    {x.score}
-                  </span>
-                  <span className="mt-1.5 hidden max-w-[24ch] text-[13px] leading-snug text-ink-3 sm:block">{x.unit}</span>
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ol>
-
-      <div ref={viewRef} className="figure-frame relative aspect-video overflow-hidden !rounded-[22px]">
-        {TERMINI.map((x, k) => (
-          <CgVideo
-            key={x.clip}
-            ref={(el) => {
-              videos.current[k] = el;
-            }}
-            clip={x.clip}
-            play={play && k === cur}
-            load={loaded.has(k)}
-            label={`${x.task} (CG illustration)`}
-            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
-            style={{ opacity: k === cur ? 1 : 0 }}
-            onEnded={() => ended(k)}
-          />
-        ))}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3 sm:p-5">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={tm.clip}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.35 }}
-              className="rounded-full bg-black/45 px-3.5 py-1.5 text-[13px] font-[680] text-white backdrop-blur-md [font-stretch:92%] sm:text-[15px]"
-            >
-              {tm.task}
-            </motion.p>
-          </AnimatePresence>
-          <div className="pointer-events-auto flex shrink-0 items-center gap-2">
-            <CgChip />
-            {!reduce && (
-              <button
-                type="button"
-                onClick={() => setPaused((p) => !p)}
-                aria-label={paused ? 'Play the clips' : 'Pause the clips'}
-                title={paused ? 'Play the clips' : 'Pause the clips'}
-                className="grid h-7 w-7 place-items-center rounded-full bg-black/45 text-white/90 backdrop-blur-md transition-colors hover:bg-black/60"
-              >
-                <Icon icon={paused ? PlayIcon : PauseIcon} size={13} stroke={2.2} />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -346,30 +182,55 @@ function G1Player() {
   );
 }
 
-function RoboTwinReplay() {
+type Clock = { per: number; hold: number; n: number; duration: number; routes: string[]; arms: (string | null)[] };
+
+/**
+ * A RoboTwin 2.0 test scene as a sped-up video: the front camera, one frame per decision. Under it a
+ * ticker of the decisions, coloured by who made each one (the fast reflex model, System 0, or the
+ * deliberate model, System 2), follows the video's clock.
+ */
+function RoboTwinVideo() {
   const { t, theme } = useTheme();
   const reduce = useReducedMotion();
-  const [scene, setScene] = useState(0);
+  const [scene, setScene] = useState(2);
   const sc = ROBOTWIN[scene];
+  const clock = (CLOCKS as unknown as Record<string, Clock>)[`robotwin-${sc.id}`];
+  const [ref, near] = useNearViewport<HTMLDivElement>('200px');
+  const video = useRef<HTMLVideoElement>(null);
   const [k, setK] = useState(0);
-  const [ref, near] = useNearViewport<HTMLDivElement>('0px');
-  const timer = useRef(0);
-  useEffect(() => setK(0), [scene]);
+
   useEffect(() => {
-    if (!near || reduce) return;
-    const step = sc.steps[k];
-    const dwell = Math.min(5200, 1600 + step.thought.length * 16);
-    timer.current = window.setTimeout(() => setK((x) => (x + 1) % sc.steps.length), dwell);
-    return () => window.clearTimeout(timer.current);
-  }, [k, near, reduce, sc]);
-  const st = sc.steps[k];
+    const el = video.current;
+    if (!el) return;
+    if (near && !reduce) el.play().catch(() => undefined);
+    else el.pause();
+  }, [near, reduce, scene]);
+
+  // the decision on screen, from the video's own clock
+  useEffect(() => {
+    if (!near) return;
+    let raf = 0;
+    const tick = () => {
+      const el = video.current;
+      if (el) setK(Math.min(clock.n - 1, Math.floor(el.currentTime / clock.per)));
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [near, clock]);
+
+  const route = clock.routes[k];
+  const deliberate = route === 'deliberate';
   return (
     <div ref={ref} className="figure-frame flex flex-col overflow-hidden">
       <div className="border-b border-rule px-5 py-4">
         <JellyRadio
           items={ROBOTWIN.map((r, i) => ({ value: String(i), label: r.title.replace(' (randomized scene)', '') }))}
           value={String(scene)}
-          onChange={(v) => setScene(Number(v))}
+          onChange={(v) => {
+            setK(0);
+            setScene(Number(v));
+          }}
           chipColor={theme === 'dark' ? t.surface2 : t.paper2}
           activeColor={t.ink}
           textColor={t.ink2}
@@ -378,50 +239,45 @@ function RoboTwinReplay() {
           ariaLabel="RoboTwin scene"
         />
       </div>
-      <div className="grid flex-1 gap-0 md:grid-cols-[minmax(0,6fr)_minmax(0,5fr)]">
-        <div className="relative aspect-[4/3] overflow-hidden bg-[#0b0e14] xl:aspect-auto xl:min-h-[300px]">
-          {sc.steps.map((s, i) => (
-            <img key={s.image} src={s.image} alt={i === k ? `Head camera at decision ${s.step + 1}` : ''} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300" style={{ opacity: i === k ? 1 : 0 }} draggable={false} />
-          ))}
-          <span className="tabular absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[12px] font-[650] text-white backdrop-blur-sm">
-            decision {st.step + 1} of {sc.decisions}
+      <div className="relative aspect-[4/3] overflow-hidden bg-[#0b0e14]">
+        <video
+          ref={video}
+          key={sc.id}
+          src={near ? `${BASE}robotwin/${sc.id}.mp4` : undefined}
+          poster={`${BASE}robotwin/${sc.id}.webp`}
+          muted
+          playsInline
+          loop
+          autoPlay={!reduce}
+          preload={near ? 'auto' : 'none'}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <span className="tabular absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[12px] font-[650] text-white backdrop-blur-sm">
+          decision {k + 1} of {clock.n}
+        </span>
+        <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11.5px] font-[650] text-ink-2">one frame per decision, sped up</span>
+        <span className="absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-full bg-black/55 px-2.5 py-1 text-[12.5px] font-[650] text-white backdrop-blur-sm">
+          <span className="badge text-[10.5px]" style={{ background: deliberate ? 'var(--s2)' : 'var(--s0)' }}>
+            {deliberate ? 'S2' : 'S0'}
           </span>
-          <div className="absolute inset-x-3 bottom-3 flex gap-[3px]">
-            {sc.steps.map((s, i) => (
-              <button
-                key={s.step}
-                type="button"
-                onClick={() => setK(i)}
-                className="h-[5px] flex-1 rounded-full transition-colors"
-                style={{ background: i <= k ? 'var(--s0-glow)' : 'rgba(255,255,255,0.3)' }}
-                aria-label={`Decision ${s.step + 1}`}
-              />
-            ))}
-          </div>
+          {deliberate ? 'deliberate model' : 'reflex model'}
+          {clock.arms[k] ? <span className="text-white/65">· {clock.arms[k]} arm</span> : null}
+        </span>
+      </div>
+      <div className="px-5 pb-4 pt-3.5">
+        <div className="flex gap-[3px]" aria-hidden>
+          {clock.routes.map((r, i) => (
+            <span
+              key={i}
+              className="h-[7px] flex-1 rounded-full transition-opacity duration-150"
+              style={{ background: r === 'deliberate' ? 'var(--s2)' : 'var(--s0)', opacity: i <= k ? 1 : 0.22 }}
+            />
+          ))}
         </div>
-        <div className="flex flex-col p-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="badge text-[12px]" style={{ background: st.route === 'deliberate' ? 'var(--s2)' : 'var(--s0)' }}>
-              {st.route === 'deliberate' ? 'S2' : 'S0'}
-            </span>
-            <span className="text-[13.5px] font-[700] text-ink [font-stretch:90%]">{st.route === 'deliberate' ? 'deliberate model' : 'reflex model'}</span>
-            {st.arm && <span className="text-[13px] text-ink-3">{st.arm} arm</span>}
-          </div>
-          <div className="mt-3 min-h-[150px] text-[15px] leading-[1.6] text-ink-2">
-            <AnimatePresence mode="wait">
-              <motion.div key={`${scene}-${k}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                {reduce ? (
-                  <p>“{st.thought}”</p>
-                ) : (
-                  <TextType text={`“${st.thought}”`} typingSpeed={9} showCursor cursorCharacter="▍" cursorColor={t.s0} loop={false} initialDelay={120} />
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-          <p className="mt-auto border-t border-rule pt-3 text-[12.5px] leading-snug text-ink-3">
-            Test scene {sc.scene.replace('rt500-', '').replace(/-/g, ' ')}, solved in {sc.decisions} decisions; the text is the model's own reasoning.
-          </p>
-        </div>
+        <p className="mt-3 text-[12.5px] leading-snug text-ink-3">
+          Test scene {sc.scene.replace('rt500-', '').replace(/-/g, ' ')}, solved in {clock.n} decisions. Blue: the reflex model; orange: a single decision
+          handed to the deliberate model.
+        </p>
       </div>
     </div>
   );

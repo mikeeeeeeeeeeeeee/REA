@@ -5,13 +5,15 @@ import { seg, useLoopClock } from '@/lib/anim';
 
 /**
  * One row of the service-status board: how a coupling design schedules the brain (S2), the
- * router (S1) and the robot's skills (S0) over time. Schematic time, after the paper's Figure 3.
+ * router (S1) and the robot's policies (S0) over time. Schematic time, after the paper's Figure 3:
+ * REA has a sync mode (the judge at each policy return) and an async mode (the brain thinks in
+ * parallel; its advice applies at the next boundary, so no policy waits).
  */
-export type CouplingMode = 'agent' | 'skill' | 'rea';
+export type CouplingMode = 'agent' | 'policy' | 'rea' | 'async';
 
 type Lane = 's2' | 's1' | 's0';
-type Block = { lane: Lane; t0: number; t1: number; kind: 'agent' | 'skill' | 'wait' | 'judge' | 'missing'; label?: string };
-type Mark = { lane: Lane; t: number; kind: 'error' | 'silent' | 'done' | 'not_done' | 'route' | 'escalate' | 'stop'; label: string };
+type Block = { lane: Lane; t0: number; t1: number; kind: 'agent' | 'policy' | 'wait' | 'judge' | 'missing' | 'next'; label?: string };
+type Mark = { lane: Lane; t: number; kind: 'error' | 'silent' | 'done' | 'not_done' | 'route' | 'escalate' | 'stop' | 'tick' | 'switch' | 'keep' | 'advice'; label: string; to?: number };
 
 const T = 12;
 const VW = 760;
@@ -27,26 +29,26 @@ const DESIGNS: Record<CouplingMode, { lanes: Lane[]; blocks: Block[]; marks: Mar
       { lane: 's2', t0: 6.4, t1: 8.0, kind: 'agent', label: 'agent' },
       { lane: 's2', t0: 9.6, t1: 11.2, kind: 'agent', label: 'agent' },
       { lane: 's0', t0: 0, t1: 1.6, kind: 'wait' },
-      { lane: 's0', t0: 1.6, t1: 3.2, kind: 'skill', label: 'act' },
+      { lane: 's0', t0: 1.6, t1: 3.2, kind: 'policy', label: 'act' },
       { lane: 's0', t0: 3.2, t1: 4.8, kind: 'wait' },
-      { lane: 's0', t0: 4.8, t1: 6.4, kind: 'skill', label: 'act' },
+      { lane: 's0', t0: 4.8, t1: 6.4, kind: 'policy', label: 'act' },
       { lane: 's0', t0: 6.4, t1: 8.0, kind: 'wait' },
-      { lane: 's0', t0: 8.0, t1: 9.6, kind: 'skill', label: 'act' },
+      { lane: 's0', t0: 8.0, t1: 9.6, kind: 'policy', label: 'act' },
       { lane: 's0', t0: 9.6, t1: 11.2, kind: 'wait' },
-      { lane: 's0', t0: 11.2, t1: 12, kind: 'skill' },
+      { lane: 's0', t0: 11.2, t1: 12, kind: 'policy' },
     ],
     marks: [],
   },
-  skill: {
+  policy: {
     lanes: ['s2', 's0'],
     blocks: [
-      { lane: 's0', t0: 0, t1: 3.3, kind: 'skill', label: 'fast policy' },
+      { lane: 's0', t0: 0, t1: 3.3, kind: 'policy', label: 'fast policy' },
       { lane: 's0', t0: 3.3, t1: 4.6, kind: 'wait' },
       { lane: 's2', t0: 3.3, t1: 4.6, kind: 'agent', label: 'agent' },
-      { lane: 's0', t0: 4.6, t1: 7.4, kind: 'skill', label: 'fast policy' },
+      { lane: 's0', t0: 4.6, t1: 7.4, kind: 'policy', label: 'fast policy' },
       { lane: 's0', t0: 7.4, t1: 8.7, kind: 'wait' },
       { lane: 's2', t0: 7.4, t1: 8.7, kind: 'agent', label: 'agent' },
-      { lane: 's0', t0: 8.7, t1: 11.3, kind: 'skill', label: 'fast policy' },
+      { lane: 's0', t0: 8.7, t1: 11.3, kind: 'policy', label: 'fast policy' },
       { lane: 's2', t0: 11.3, t1: 12, kind: 'missing' },
     ],
     marks: [
@@ -58,9 +60,9 @@ const DESIGNS: Record<CouplingMode, { lanes: Lane[]; blocks: Block[]; marks: Mar
   rea: {
     lanes: ['s2', 's1', 's0'],
     blocks: [
-      { lane: 's0', t0: 0.3, t1: 5.4, kind: 'skill', label: 'skill 1, end to end' },
+      { lane: 's0', t0: 0.3, t1: 5.4, kind: 'policy', label: 'policy 1, end to end' },
       { lane: 's2', t0: 5.4, t1: 6.3, kind: 'judge' },
-      { lane: 's0', t0: 6.3, t1: 11.0, kind: 'skill', label: 'skill 2, from the current state' },
+      { lane: 's0', t0: 6.3, t1: 11.0, kind: 'policy', label: 'policy 2, from the current state' },
       { lane: 's2', t0: 11.0, t1: 11.9, kind: 'judge' },
     ],
     marks: [
@@ -69,6 +71,28 @@ const DESIGNS: Record<CouplingMode, { lanes: Lane[]; blocks: Block[]; marks: Mar
       { lane: 's1', t: 6.3, kind: 'escalate', label: 'escalate' },
       { lane: 's2', t: 11.9, kind: 'done', label: 'done' },
       { lane: 's1', t: 11.95, kind: 'stop', label: 'stop' },
+    ],
+  },
+  async: {
+    lanes: ['s2', 's1', 's0'],
+    blocks: [
+      { lane: 's2', t0: 0.5, t1: 4.3, kind: 'agent', label: 'think 1' },
+      { lane: 's2', t0: 4.6, t1: 8.9, kind: 'agent', label: 'think 2' },
+      { lane: 's2', t0: 9.2, t1: 12, kind: 'next', label: 'next request…' },
+      { lane: 's0', t0: 0.3, t1: 2.55, kind: 'policy', label: 'policy 1' },
+      { lane: 's0', t0: 2.65, t1: 4.9, kind: 'policy', label: 'policy 1' },
+      { lane: 's0', t0: 5.0, t1: 7.25, kind: 'policy', label: 'policy 2' },
+      { lane: 's0', t0: 7.35, t1: 9.6, kind: 'policy', label: 'policy 2' },
+      { lane: 's0', t0: 9.7, t1: 12, kind: 'policy', label: 'policy 2' },
+    ],
+    marks: [
+      { lane: 's1', t: 0.15, kind: 'route', label: 'route memory' },
+      { lane: 's1', t: 2.6, kind: 'tick', label: '' },
+      { lane: 's1', t: 4.95, kind: 'switch', label: 'switch' },
+      { lane: 's1', t: 7.3, kind: 'tick', label: '' },
+      { lane: 's1', t: 9.65, kind: 'keep', label: 'keep' },
+      { lane: 's2', t: 4.3, kind: 'advice', label: 'advice: policy 2', to: 4.95 },
+      { lane: 's2', t: 8.9, kind: 'advice', label: 'advice: keep', to: 9.65 },
     ],
   },
 };
@@ -117,7 +141,19 @@ export default function CouplingStrip({ mode }: { mode: CouplingMode }) {
           const full = tx(b.t1) - x;
           const w = full * k;
           const y = laneY[b.lane];
-          const h = b.kind === 'skill' || b.kind === 'wait' ? 26 : 20;
+          const h = b.kind === 'policy' || b.kind === 'wait' ? 26 : 20;
+          if (b.kind === 'next') {
+            return (
+              <g key={i}>
+                <rect x={x} y={y - h / 2} width={Math.max(0.1, w)} height={h} rx={h / 2} fill={t.s2w} stroke={t.s2} strokeOpacity={0.6} strokeDasharray="4 4" strokeWidth={1.5} />
+                {k > 0.85 && (
+                  <text x={x + full / 2} y={y + 4.5} textAnchor="middle" fill={t.ink2} style={{ fontSize: 12, fontWeight: 650, fontStretch: '88%' }}>
+                    {b.label}
+                  </text>
+                )}
+              </g>
+            );
+          }
           if (b.kind === 'missing') {
             return (
               <g key={i}>
@@ -128,7 +164,7 @@ export default function CouplingStrip({ mode }: { mode: CouplingMode }) {
               </g>
             );
           }
-          const fill = b.kind === 'wait' ? `url(#cs-hatch-${uid})` : b.kind === 'skill' ? t.s0 : t.s2;
+          const fill = b.kind === 'wait' ? `url(#cs-hatch-${uid})` : b.kind === 'policy' ? t.s0 : t.s2;
           const active = k < 1;
           return (
             <g key={i}>
@@ -141,7 +177,7 @@ export default function CouplingStrip({ mode }: { mode: CouplingMode }) {
                 fill={fill}
                 stroke={b.kind === 'wait' ? t.s2 : 'none'}
                 strokeOpacity={0.6}
-                style={{ filter: active && b.kind !== 'wait' ? `drop-shadow(0 0 8px ${b.kind === 'skill' ? t.s0g : t.s2g})` : 'none' }}
+                style={{ filter: active && b.kind !== 'wait' ? `drop-shadow(0 0 8px ${b.kind === 'policy' ? t.s0g : t.s2g})` : 'none' }}
               />
               {b.label && k > 0.85 && full > 70 && (
                 <text x={x + full / 2} y={y + 4.5} textAnchor="middle" fill="#ffffff" style={{ fontSize: 12.5, fontWeight: 700, fontStretch: '86%' }}>
@@ -160,13 +196,31 @@ export default function CouplingStrip({ mode }: { mode: CouplingMode }) {
         {d.marks.map((m, i) => {
           const on = now >= m.t;
           const y = laneY[m.lane];
-          if (m.kind === 'route' || m.kind === 'escalate' || m.kind === 'stop') {
+          if (m.kind === 'route' || m.kind === 'escalate' || m.kind === 'stop' || m.kind === 'tick' || m.kind === 'switch' || m.kind === 'keep') {
             return (
               <g key={i} transform={`translate(${tx(m.t)} ${y})`} style={{ opacity: on ? 1 : 0.15, transition: 'opacity .3s' }}>
                 <rect x={-8} y={-11} width={16} height={22} rx={8} fill={station} stroke={t.ink} strokeWidth={2.5} />
                 <text x={m.kind === 'stop' ? -14 : 14} y={5} textAnchor={m.kind === 'stop' ? 'end' : 'start'} fill={t.ink} style={{ fontSize: 12.5, fontWeight: 700, fontStretch: '86%' }}>
                   {m.label}
                 </text>
+              </g>
+            );
+          }
+          if (m.kind === 'advice') {
+            if (!on) return null;
+            const x0 = tx(m.t);
+            const x1 = tx(m.to ?? m.t) - 10;
+            const w = m.label.length * 6.4 + 18;
+            return (
+              <g key={i}>
+                <path d={`M ${x0} ${laneY.s2 + 10} V ${laneY.s1} H ${x1}`} fill="none" stroke={t.ink3} strokeWidth={1.4} strokeDasharray="3 3" />
+                <path d={`M ${x1 - 5} ${laneY.s1 - 4} L ${x1} ${laneY.s1} L ${x1 - 5} ${laneY.s1 + 4}`} fill="none" stroke={t.ink3} strokeWidth={1.4} />
+                <g transform={`translate(${x0 - w / 2} ${laneY.s2 - 30})`}>
+                  <rect width={w} height={20} rx={10} fill={station} stroke={t.ink3} strokeWidth={1} />
+                  <text x={w / 2} y={14} textAnchor="middle" fill={t.ink} style={{ fontSize: 12, fontWeight: 700, fontStretch: '88%' }}>
+                    {m.label}
+                  </text>
+                </g>
               </g>
             );
           }

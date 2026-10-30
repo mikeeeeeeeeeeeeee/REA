@@ -9,7 +9,7 @@ import JourneyMap from '@/components/viz/JourneyMap';
 import Icon from '@/components/ui/Icon';
 import { Container } from '@/components/ui/Layout';
 import { BrandMark, LineBadge } from '@/components/ui/Line';
-import { AFFILIATIONS, AUTHORS, LINKS, PAPER } from '@/data/paper';
+import { AFFILIATIONS, AUTHORS, CONTACT, LINKS, PAPER } from '@/data/paper';
 import { EPISODES } from '@/data/gen/episodes';
 import { useTheme } from '@/theme/ThemeProvider';
 import { scrollToId, useReducedMotion } from '@/lib/hooks';
@@ -57,7 +57,7 @@ export default function Hero() {
               <LineBadge line="s2" size={15} />
               <LineBadge line="s1" size={15} />
               <LineBadge line="s0" size={15} />
-              <span className="label ml-2">Brain, router, skills</span>
+              <span className="label ml-2">Brain, router, policies</span>
             </div>
             <h1 ref={titleRef} className="mt-3 text-ink">
               <span className="sr-only">{PAPER.title}</span>
@@ -79,7 +79,7 @@ export default function Hero() {
             {/* a station roundel with the one rule, beside the name */}
             <div className="rise-in absolute right-0 top-0 hidden xl:block" style={{ animationDelay: '0.3s' }}>
               <CircularText
-                text="no running skill waits on the brain ✦ "
+                text="no running policy waits on the brain ✦ "
                 repeat={2}
                 size={112}
                 fontSize={9.5}
@@ -110,8 +110,8 @@ export default function Hero() {
               />
             </div>
             <p className="rise-in lede mt-3 !max-w-[64ch]" style={{ animationDelay: '0.32s' }}>
-              A slow brain that writes skills and judges results, fast skills that act, and a router between them. One rule holds on every
-              line: <b>no running skill waits on the brain.</b>
+              A slow brain that writes policies and judges results, fast policies that act, and a router between them. One rule holds on every
+              line: <b>no running policy waits on the brain.</b>
             </p>
             <div className="rise-in mt-5 flex flex-wrap items-center gap-2.5" style={{ animationDelay: '0.42s' }}>
               <Magnet padding={46} magnetStrength={5}>
@@ -171,7 +171,7 @@ export default function Hero() {
               The verdicts are the judge's own words.
             </span>
             <span className="tabular whitespace-nowrap">
-              {HERO_EPISODE.steps.toLocaleString('en-US')} of {HERO_EPISODE.horizon.toLocaleString('en-US')} steps, {HERO_EPISODE.wall} s{reduce ? '' : ', skill runs replayed 11× faster'}
+              {HERO_EPISODE.steps.toLocaleString('en-US')} of {HERO_EPISODE.horizon.toLocaleString('en-US')} steps, {HERO_EPISODE.wall} s{reduce ? '' : ', policy runs replayed 11× faster'}
             </span>
           </figcaption>
         </figure>
@@ -198,6 +198,13 @@ export default function Hero() {
                 </span>
               ))}
               <span className="inline-block">‡ Corresponding authors</span>
+            </p>
+            <p className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-[13px] text-ink-3">
+              {CONTACT.map((c) => (
+                <a key={c} href={`mailto:${c}`} className="underline decoration-rule-2 underline-offset-4 transition-colors hover:text-ink hover:decoration-ink">
+                  {c}
+                </a>
+              ))}
             </p>
           </div>
           <img src={dark ? logoDark : logoLight} alt="InfRec, Cardinal AI Lab" className="h-9 w-auto shrink-0" />

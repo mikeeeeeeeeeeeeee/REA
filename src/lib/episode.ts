@@ -3,8 +3,8 @@ import type { Episode, Verdict } from '@/data/types';
 /**
  * Turns one logged episode into a replayable timeline.
  *
- * Episode time is real wall-clock seconds from the log: skill runs and judge calls back to back
- * (their sum is the episode's `wall`). Replay time is what the visitor watches: skill runs are
+ * Episode time is real wall-clock seconds from the log: policy runs and judge calls back to back
+ * (their sum is the episode's `wall`). Replay time is what the visitor watches: policy runs are
  * sped up, judge calls play at about real speed, and short holds let the verdicts be read.
  */
 export type Phase = 'dispatch' | 'run' | 'judge' | 'verdict' | 'stop';

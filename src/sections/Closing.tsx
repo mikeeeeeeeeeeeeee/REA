@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { Copy01Icon, CopyCheckIcon, Mail01Icon } from '@hugeicons/core-free-icons';
+import { Copy01Icon, CopyCheckIcon } from '@hugeicons/core-free-icons';
 import TearTicket from '@/components/reactbits/TearTicket/TearTicket';
 import SwipeToast from '@/components/reactbits/SwipeToast/SwipeToast';
 import ClickSpark from '@/components/reactbits/ClickSpark/ClickSpark';
 import Icon from '@/components/ui/Icon';
 import { Container, SectionTitle } from '@/components/ui/Layout';
 import { BrandMark, LineBadge } from '@/components/ui/Line';
-import { AFFILIATIONS, BIBTEX, CONTACT, PAPER } from '@/data/paper';
+import { BIBTEX, PAPER } from '@/data/paper';
 import { useTheme } from '@/theme/ThemeProvider';
-import logoLight from '@/assets/brand/infrec.webp';
-import logoDark from '@/assets/brand/infrec-dark.webp';
 
 export default function Closing() {
   const { t, theme } = useTheme();
@@ -34,7 +32,7 @@ export default function Closing() {
             <div>
               <SectionTitle>Take a ticket</SectionTitle>
               <p className="lede mt-5">
-                If REA is useful to your work, please cite the paper: tear off the stub to copy the BibTeX. The runtime, the frozen skill libraries
+                If REA is useful to your work, please cite the paper: tear off the stub to copy the BibTeX. The runtime, the frozen policy libraries
                 and every per-episode record will be released with it.
               </p>
             </div>
@@ -97,35 +95,6 @@ export default function Closing() {
           </div>
         </Container>
       </section>
-
-      <footer className="relative border-t border-rule pb-14 pt-10">
-        <Container wide className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-          <div>
-            <div className="flex items-center gap-3">
-              <BrandMark size={28} />
-              <span className="text-[22px] font-[800] [font-stretch:84%]">REA</span>
-              <span className="text-[14px] text-ink-3">{PAPER.subtitle}</span>
-            </div>
-            <p className="mt-4 max-w-[80ch] text-[13px] leading-[1.7] text-ink-3">
-              {AFFILIATIONS.map((a, i) => (
-                <span key={a} className="mr-4 inline-block">
-                  <sup className="tabular mr-0.5">{i + 1}</sup>
-                  {a}
-                </span>
-              ))}
-            </p>
-            <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13.5px] text-ink-2">
-              <Icon icon={Mail01Icon} size={15} />
-              {CONTACT.map((c) => (
-                <a key={c} href={`mailto:${c}`} className="underline decoration-rule-2 underline-offset-4 hover:decoration-ink">
-                  {c}
-                </a>
-              ))}
-            </p>
-          </div>
-          <img src={theme === 'dark' ? logoDark : logoLight} alt="InfRec, Cardinal AI Lab" className="h-10 w-auto" />
-        </Container>
-      </footer>
 
       <div className="fixed bottom-6 left-1/2 z-[70] -translate-x-1/2">
         <SwipeToast

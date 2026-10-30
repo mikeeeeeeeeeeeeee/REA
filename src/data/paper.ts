@@ -15,7 +15,7 @@ export const PAPER = {
   expansion: 'Routed Embodied Agent',
   subtitle: 'A Routed Embodied Agent Runtime for Asynchronous Brain–Cerebellum Control',
   date: 'October 2026',
-  rule: 'No running skill waits on the brain.',
+  rule: 'No running policy waits on the brain.',
 };
 
 export const AUTHORS: { name: string; aff: number[]; corresponding?: boolean }[] = [
@@ -38,12 +38,13 @@ export const AFFILIATIONS = [
   'Hong Kong University of Science and Technology',
 ];
 
-export const CONTACT = ['wangbo.zhao96@gmail.com', 'yangyou@nus.edu.sg'];
+export const CONTACT = ['wanghexin@infrec.tech', 'wangbo.zhao96@gmail.com', 'yangyou@nus.edu.sg'];
 
+/** the abstract of the arXiv version of 2026-10-30 */
 export const ABSTRACT = [
-  'Foundation models are becoming remarkably reliable at high-level reasoning, yet they remain too slow and costly to serve as fine-grained controllers. Conversely, fast policies like VLAs and whole-body controllers offer more efficient reflexes, but struggle to generalize. While pairing a deliberative brain (foundation models) with a reactive cerebellum (fast policies) seems natural for embodied systems, two obstacles remain: methods are built and scored on incompatible stacks, and their asynchronous coordination is difficult. For example, an agent that calls the VLA in the loop can stall the fast execution, while a VLA that calls the agent on errors tends to re-trigger fallbacks repeatedly or completely miss silent failures.',
-  'To address this, we propose REA (Routed Embodied Agent), a unified runtime where a deliberative System 2, an embodied router System 1, and reactive System 0 skills cooperate under a single golden rule: no running skill waits on the brain. Instead of querying the brain on the critical path, REA employs a route memory that stores each skill’s measured success ahead of time, a boundary-triggered judge gate that consults the brain only after a skill returns, and a shared-budget escalation ladder for bounded recovery.',
-  'Evaluated on 3,000 test episodes across 60 LIBERO-Pro tasks, REA reaches 95.9% success and beats the best single-agent baseline in its own skill pool (94.7%) while reducing control steps by 25% and control time by 17%. Where skills fail silently, the judge gate adds 3.1 points over standard exception handling on unselected episodes, at 2.1× the time per success, and 15.3% on a failure-heavy stress subset. REA also carries over to BEHAVIOR-1K, RoboTwin 2.0 and a real Unitree G1 humanoid, solving the most episodes of the compared methods on all three. Our findings offer an insight for embodied design: an embodied brain is best utilized when its decisions are made ahead of time and queried only at natural behavioral boundaries, rather than wedged into the fixed control path.',
+  'Foundation models are becoming remarkably reliable at high-level reasoning, yet they remain too slow and costly to serve as fine-grained controllers. Conversely, fast policies like VLAs and whole-body controllers offer more efficient reflexes, but struggle to generalize. While pairing a deliberative brain (foundation models) with a reactive cerebellum (fast policies) seems natural for embodied systems, two obstacles remain: methods are built and scored on incompatible stacks, and their asynchronous coordination is difficult. For example, an agent that calls the VLA in the agentic loop can stall the fast execution, while a VLA that calls the agent on errors tends to re-trigger fallbacks repeatedly or completely miss silent failures.',
+  'To address this, we propose REA (Routed Embodied Agent), a unified runtime where a deliberative System 2, an embodied router System 1 and reactive System 0 policies cooperate under a single golden rule: no running policy waits on the brain. Instead of querying the brain at each failure, REA employs a route memory that stores each policy’s measured success ahead of time, a boundary-triggered judge gate that consults the brain on policy execution, and a shared-budget escalation ladder for bounded recovery.',
+  'Evaluated on 3,000 test episodes across 60 LIBERO-Pro tasks, REA reaches 95.9% success and beats the best single-agent baseline in its own policy pool (94.7%) while reducing control steps by 25% and control time by 17%. In a separate 100-episode RoboTwin 2.0 study, REA achieves 84% success with VLA policies and 86% with VLA+code, compared with 80% for the strongest single VLA baseline MEDex. These results demonstrate learned and programmatic policies operating within the same runtime. REA also transfers to BEHAVIOR-1K and a real Unitree G1 humanoid, achieving the highest observed success among the compared methods.',
 ];
 
 export const BIBTEX = `@article{zhou2026rea,

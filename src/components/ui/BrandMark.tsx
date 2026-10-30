@@ -1,6 +1,6 @@
 /**
  * REA's mark: the page's timing diagram reduced to three strokes. The brain (System 2) acts
- * rarely, the router (System 1) at boundaries, the skills (System 0) run the whole way.
+ * rarely, the router (System 1) at boundaries, the policies (System 0) run the whole way.
  */
 export default function BrandMark({ size = 22, className = '' }: { size?: number; className?: string }) {
   return (

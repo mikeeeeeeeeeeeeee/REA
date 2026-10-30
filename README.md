@@ -34,14 +34,15 @@ Asset paths are relative (`base: './'`), so the same build works at a sub-path o
 | What | File |
 | --- | --- |
 | Title, authors, affiliations, abstract, BibTeX, **links** | `src/data/paper.ts` |
-| Most numbers on the page (Tables 1, 3–6, 9–14, 17 and 18 of the arXiv version; a few are written in the sections) | `src/data/results.ts` |
+| The charted numbers (Figure 7 and Tables 15 and 19 of the arXiv version of 2026-10-30; the headline numbers are written in the sections) | `src/data/results.ts` |
 | Test episodes, RoboTwin decisions, G1 and BEHAVIOR frames | `src/data/gen/*.ts` (generated) |
-| Colours (three lines: S2 brain, S1 router, S0 skills) | `src/index.css` and `src/theme/tokens.ts` |
+| Colours (three lines: S2 brain, S1 router, S0 policies) | `src/index.css` and `src/theme/tokens.ts` |
 | The film: player, chapters, file names | `src/components/film/FilmPlayer.tsx`, `src/data/film.ts` |
 | The film's videos and posters | `public/film/rea-intro-*.mp4`, `src/assets/film/intro-*poster-*.webp` (made in `../intro_video`) |
-| CG clips in the four termini, and their posters | `public/cg/*` (cut from the Blender renders in `../intro_video/renders` by `../film/scripts/cg.py`), played by `src/components/cg/CgVideo.tsx` |
 | The ALOHA real-robot study: trials, outcomes, captions | `src/data/aloha.ts`, rendered by `src/sections/Aloha.tsx` |
-| ALOHA keyframes and re-encoded clips | `public/aloha/*` (made from `../Aloha真机实验`; the originals are not in this repository) |
+| ALOHA videos: the four endings sped up, the π0.5 release clips | `public/aloha/*` (made from `~/Downloads/Aloha真机实验`; the originals are not in this repository) |
+| RoboTwin 2.0 test scenes, sped up to one frame per decision | `public/robotwin/*` |
+| The sped-up videos and their clocks (for the page's overlays) | `../tools/page_videos.py` → `public/robotwin/`, `public/aloha/endings.*`, `src/data/gen/page-videos.json` |
 
 Links that are not public yet (`arxiv`, `pdf`, `code`, `video` in `src/data/paper.ts`) are empty; the page then
 shows the button with a "soon" badge. Fill them in and push.
