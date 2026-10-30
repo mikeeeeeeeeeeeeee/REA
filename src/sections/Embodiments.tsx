@@ -102,10 +102,12 @@ function LatencyChart() {
 }
 
 type G1Clock = { duration: number; push: number; front: number[]; side: number[] };
+/** the trial plays sped up: in real time its two small steps and the push are slow to watch */
+const G1_SPEED = 2;
 
 /**
- * REA's Unitree G1 trial, filmed by two external cameras (the videos behind the paper's Figure 13), both in real
- * time: the side camera follows the front one's clock, so the push lands in both at once. The slider seeks both.
+ * REA's Unitree G1 trial, filmed by two external cameras (the videos behind the paper's Figure 13), both at 2x
+ * speed: the side camera follows the front one's clock, so the push lands in both at once. The slider seeks both.
  */
 function G1Player() {
   const reduce = useReducedMotion();
@@ -118,6 +120,10 @@ function G1Player() {
 
   useEffect(() => {
     const vs = [front.current, side.current].filter((v): v is HTMLVideoElement => !!v);
+    vs.forEach((v) => {
+      v.defaultPlaybackRate = G1_SPEED;
+      v.playbackRate = G1_SPEED;
+    });
     if (near && playing) vs.forEach((v) => v.play().catch(() => setPlaying(false)));
     else vs.forEach((v) => v.pause());
   }, [near, playing]);
@@ -158,6 +164,10 @@ function G1Player() {
       loop
       autoPlay={!reduce}
       preload={near ? 'auto' : 'none'}
+      onLoadedMetadata={(e) => {
+        e.currentTarget.defaultPlaybackRate = G1_SPEED;
+        e.currentTarget.playbackRate = G1_SPEED;
+      }}
       className="absolute inset-0 h-full w-full object-cover"
     />
   );
@@ -173,7 +183,7 @@ function G1Player() {
           {vid('side', side)}
           <span className="absolute left-1.5 top-1.5 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-[650] text-white backdrop-blur-sm sm:left-2.5 sm:top-2.5 sm:px-2.5 sm:py-1 sm:text-[12px]">side</span>
           <span className="tabular absolute right-1.5 top-1.5 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-[650] text-[#3b424f] sm:right-2.5 sm:top-2.5 sm:px-2.5 sm:py-1 sm:text-[12px]">
-            real time · {time.toFixed(1)} s
+            {G1_SPEED}× speed · {time.toFixed(1)} s
           </span>
         </div>
       </div>
@@ -204,7 +214,7 @@ function G1Player() {
             />
           </div>
         </div>
-        <p className="mt-3 text-[13px] leading-snug text-ink-3">One of REA's successful trials, filmed by two external cameras; both play in real time and in step.</p>
+        <p className="mt-3 text-[13px] leading-snug text-ink-3">One of REA's successful trials, filmed by two external cameras; both play at {G1_SPEED}× speed and in step, the times are the trial's own.</p>
       </div>
     </div>
   );

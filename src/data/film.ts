@@ -67,3 +67,14 @@ export const FIRST_CUT: FilmCut = 'full';
 export const lengthOf = (f: Film) => `${Math.floor(f.duration / 60)} min ${Math.floor(f.duration % 60)} s`;
 
 export const chapterAt = (f: Film, t: number) => [...f.chapters].reverse().find((c) => t >= c.t) ?? f.chapters[0];
+
+/**
+ * The robot demo (made in ../demo_film): REA on the real robots and the simulators, one H.264 file at 30 fps with
+ * English and Chinese subtitles burned in. Shown in its own section near the end of the page, apart from the film.
+ */
+export const DEMO = {
+  src: `${BASE}film/rea-robot-demo.mp4`,
+  poster: `${BASE}film/rea-robot-demo.webp`,
+  duration: 107.4,
+  length: '1 min 47 s',
+};

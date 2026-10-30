@@ -39,6 +39,7 @@ Asset paths are relative (`base: './'`), so the same build works at a sub-path o
 | Colours (three lines: S2 brain, S1 router, S0 policies) | `src/index.css` and `src/theme/tokens.ts` |
 | The film: player, chapters, file names | `src/components/film/FilmPlayer.tsx`, `src/data/film.ts` |
 | The film's videos and posters | `public/film/rea-intro-*.mp4`, `src/assets/film/intro-*poster-*.webp` (made in `../intro_video`) |
+| The robot demo (its own section near the end; the hero's main button plays it until `LINKS.arxiv` is set) | `public/film/rea-robot-demo.mp4` + `.webp` (made in `../demo_film`, re-encoded at 30 fps), `src/data/film.ts` (`DEMO`), `src/sections/Demo.tsx` |
 | The ALOHA real-robot study: trials, outcomes, captions | `src/data/aloha.ts`, rendered by `src/sections/Aloha.tsx` |
 | ALOHA videos: the four endings sped up, the π0.5 release clips | `public/aloha/*` (made from `~/Downloads/Aloha真机实验`; the originals are not in this repository) |
 | RoboTwin 2.0 test scenes, sped up to one frame per decision | `public/robotwin/*` |

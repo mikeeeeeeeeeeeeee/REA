@@ -129,20 +129,20 @@ export default function Hero() {
                   className="!inline-flex"
                 >
                   <a
-                    href={LINKS.arxiv || '#abstract'}
+                    href={LINKS.arxiv || '#demo'}
+                    target={LINKS.arxiv ? '_blank' : undefined}
+                    rel="noreferrer"
                     onClick={(e) => {
                       if (!LINKS.arxiv) {
+                        // until the paper is public, the main button plays the robot demo
                         e.preventDefault();
-                        // the abstract sits folded in the overview
-                        const d = document.getElementById('abstract');
-                        if (d instanceof HTMLDetailsElement) d.open = true;
-                        scrollToId('abstract');
+                        scrollToId('demo');
                       }
                     }}
                     className="inline-flex h-11 items-center gap-2 px-5 text-[15px] font-[680] text-paper [font-stretch:94%]"
                   >
-                    <Icon icon={File02Icon} size={17} />
-                    {LINKS.arxiv ? 'Read the paper' : 'Read the abstract'}
+                    <Icon icon={LINKS.arxiv ? File02Icon : PlayCircleIcon} size={17} />
+                    {LINKS.arxiv ? 'Read the paper' : 'Watch the robot demo'}
                   </a>
                 </GlareHover>
               </Magnet>
@@ -152,9 +152,11 @@ export default function Hero() {
               <Pill href={LINKS.code} icon={<Icon icon={GithubIcon} size={17} />}>
                 Code
               </Pill>
-              <Pill href={LINKS.video} icon={<Icon icon={PlayCircleIcon} size={17} />}>
-                Robot video
-              </Pill>
+              {LINKS.arxiv && (
+                <Pill href="#demo" onClick={() => scrollToId('demo')} icon={<Icon icon={PlayCircleIcon} size={17} />}>
+                  Robot demo
+                </Pill>
+              )}
               <Pill href="" onClick={() => scrollToId('cite')} icon={<Icon icon={QuoteDownIcon} size={17} />}>
                 Cite
               </Pill>
