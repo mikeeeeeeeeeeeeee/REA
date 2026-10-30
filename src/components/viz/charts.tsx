@@ -44,6 +44,7 @@ export function ChartFrame({
   actions,
   children,
   className = '',
+  fill = false,
 }: {
   title: ReactNode;
   sub?: ReactNode;
@@ -53,10 +54,12 @@ export function ChartFrame({
   actions?: ReactNode;
   children: ReactNode;
   className?: string;
+  /** stretch to the row's height, the body a column that content can push to the bottom (mt-auto) or grow into (flex-1) */
+  fill?: boolean;
 }) {
   const [asTable, setAsTable] = useState(false);
   return (
-    <figure className={`figure-frame overflow-hidden ${className}`}>
+    <figure className={`figure-frame overflow-hidden ${fill ? 'flex flex-col' : ''} ${className}`}>
       <figcaption className="flex flex-wrap items-start justify-between gap-x-6 gap-y-2 border-b border-rule px-5 py-4 sm:px-6">
         <div className="min-w-0">
           <p className="text-[16px] font-[740] leading-snug text-ink [font-stretch:88%]">{title}</p>
@@ -77,7 +80,7 @@ export function ChartFrame({
         )}
         </div>
       </figcaption>
-      <div className="px-5 py-5 sm:px-6">
+      <div className={`px-5 py-5 sm:px-6 ${fill ? 'flex flex-1 flex-col' : ''}`}>
         {asTable && table ? <DataTable head={table.head} rows={table.rows} /> : children}
         {legend && !asTable && <div className="mt-4 border-t border-rule pt-3">{legend}</div>}
       </div>

@@ -30,9 +30,12 @@ export default function Aloha() {
           </p>
         </div>
 
-        <div className="mt-14 grid items-start gap-x-12 gap-y-6 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+        <div className="mt-14 grid gap-x-12 gap-y-6 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
           <EndingsVideo />
-          <AlohaMetrics />
+          <div className="flex flex-col gap-5">
+            <AlohaMetrics />
+            <SetupCard />
+          </div>
         </div>
 
         <Pi05Study />
@@ -123,13 +126,29 @@ function EndingsVideo() {
         {/* the seams between the four trials, in the page's own surface colour */}
         <span className="pointer-events-none absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 bg-surface" />
         <span className="pointer-events-none absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 bg-surface" />
-        <span className="pointer-events-none absolute right-2.5 top-2.5 hidden rounded-full bg-white/90 px-2.5 py-1 text-[11.5px] font-[650] text-ink-2 transition-opacity sm:inline-block" style={{ opacity: lapsing ? 1 : 0 }}>
+        <span className="pointer-events-none absolute right-2.5 top-2.5 hidden rounded-full bg-white/90 px-2.5 py-1 text-[11.5px] font-[650] text-[#3b424f] transition-opacity sm:inline-block" style={{ opacity: lapsing ? 1 : 0 }}>
           head camera, time-lapse
         </span>
       </div>
       <figcaption className="border-t border-rule px-5 py-3.5 text-[12.5px] leading-snug text-ink-3">
         The archive's failed trial for each baseline beside REA's trial 09, all four starting with the blue block next to the box: the head camera as a
         time-lapse, then the wrist camera's last photo with the operator's verdict.
+      </figcaption>
+    </figure>
+  );
+}
+
+/** the task as the external camera saw it before REA's trial 09, and the protocol every agent ran under */
+function SetupCard() {
+  return (
+    <figure className="figure-frame flex flex-1 flex-col overflow-hidden">
+      <div className="relative aspect-[16/7] bg-[#0b0e14] xl:aspect-auto xl:min-h-[120px] xl:flex-1">
+        <img src={`${BASE}aloha/setup.webp`} alt="The AlohaMini2 setup: a blue block on the table, the box beside it" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: '50% 32%' }} />
+        <span className="absolute left-2.5 top-2.5 rounded-full bg-black/55 px-2.5 py-0.5 text-[11.5px] font-[680] text-white backdrop-blur-sm">the task · external camera</span>
+      </div>
+      <figcaption className="border-t border-rule px-5 py-3.5 text-[13px] leading-snug text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
+        Put the block in the box, let go, and it must stay there. <b>Same arm, same task for every agent</b>: up to three grasps, no time limit,
+        ten valid trials each, judged by the operator.
       </figcaption>
     </figure>
   );
@@ -148,7 +167,8 @@ const METRICS: Record<MetricKey, { tab: string; short: string; note: string }> =
 function AlohaMetrics() {
   const { t, theme } = useTheme();
   const [m, setM] = useState<MetricKey>('solved');
-  const roomy = useMediaQuery('(min-width: 640px)');
+  // the long tabs need the card wide: full width when stacked (640–1279 px), or the right column at 1440 px and up
+  const roomy = useMediaQuery('(min-width: 1440px), (min-width: 640px) and (max-width: 1279px)');
   const rows: BarRow[] = ALOHA_RUNS.map((r) => {
     const kind = r.key === 'rea' ? 'ours' : 'base';
     const label = METHODS[r.key].label;
@@ -208,7 +228,7 @@ function Pi05Study() {
           to none.
         </p>
       </div>
-      <div className="mt-8 grid items-start gap-5 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+      <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
         <ReleasePair />
         <Pi05Card />
       </div>
@@ -374,6 +394,7 @@ function Pi05Card() {
   });
   return (
     <ChartFrame
+      fill
       title="Ten trials each"
       sub="operator-judged; π0.5 at step 5000, REA with π0.5 and a code policy"
       table={{
@@ -385,7 +406,8 @@ function Pi05Card() {
         <Stat label="Solved" from={count(pi, 'success')} to={count(rea, 'success')} of={10} />
         <Stat label="Failed at placement" from={count(pi, 'place')} to={count(rea, 'place')} />
       </dl>
-      <div className="mt-6 border-t border-rule pt-5">
+      <div className="min-h-6 flex-1" />
+      <div className="border-t border-rule pt-5">
         <HBars rows={rows} max={100} unit="%" ticks={[0, 50, 100]} labelWidth={96} barH={20} ariaLabel="Trials solved, π0.5 alone and inside REA" />
       </div>
     </ChartFrame>

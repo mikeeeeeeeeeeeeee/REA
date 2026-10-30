@@ -35,14 +35,15 @@ Asset paths are relative (`base: './'`), so the same build works at a sub-path o
 | --- | --- |
 | Title, authors, affiliations, abstract, BibTeX, **links** | `src/data/paper.ts` |
 | The charted numbers (Figure 7 and Tables 15 and 19 of the arXiv version of 2026-10-30; the headline numbers are written in the sections) | `src/data/results.ts` |
-| Test episodes, RoboTwin decisions, G1 and BEHAVIOR frames | `src/data/gen/*.ts` (generated) |
+| Test episodes, RoboTwin decisions, BEHAVIOR frames | `src/data/gen/*.ts` (generated) |
 | Colours (three lines: S2 brain, S1 router, S0 policies) | `src/index.css` and `src/theme/tokens.ts` |
 | The film: player, chapters, file names | `src/components/film/FilmPlayer.tsx`, `src/data/film.ts` |
 | The film's videos and posters | `public/film/rea-intro-*.mp4`, `src/assets/film/intro-*poster-*.webp` (made in `../intro_video`) |
 | The ALOHA real-robot study: trials, outcomes, captions | `src/data/aloha.ts`, rendered by `src/sections/Aloha.tsx` |
 | ALOHA videos: the four endings sped up, the π0.5 release clips | `public/aloha/*` (made from `~/Downloads/Aloha真机实验`; the originals are not in this repository) |
 | RoboTwin 2.0 test scenes, sped up to one frame per decision | `public/robotwin/*` |
-| The sped-up videos and their clocks (for the page's overlays) | `../tools/page_videos.py` → `public/robotwin/`, `public/aloha/endings.*`, `src/data/gen/page-videos.json` |
+| REA's Unitree G1 trial, front and side cameras in step (the videos behind the paper's Figure 13) | `public/g1/*` |
+| The page's videos and their clocks (for the overlays) | `../tools/page_videos.py [--only g1,robotwin,aloha]` → `public/robotwin/`, `public/aloha/endings.*`, `public/g1/`, `src/data/gen/page-videos.json` |
 
 Links that are not public yet (`arxiv`, `pdf`, `code`, `video` in `src/data/paper.ts`) are empty; the page then
 shows the button with a "soon" badge. Fill them in and push.
