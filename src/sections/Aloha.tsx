@@ -228,7 +228,7 @@ function Pi05Study() {
           to none.
         </p>
       </div>
-      <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+      <div className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
         <ReleasePair />
         <Pi05Card />
       </div>
@@ -406,10 +406,12 @@ export function Pi05Card() {
         <Stat label="Solved" from={count(pi, 'success')} to={count(rea, 'success')} of={10} />
         <Stat label="Failed at placement" from={count(pi, 'place')} to={count(rea, 'place')} />
       </dl>
-      <div className="min-h-6 flex-1" />
+      {/* the card's spare height goes above and below the bars, so the gap over the line matches the gap under the axis */}
+      <div className="min-h-3 flex-[1_1_20px]" />
       <div className="border-t border-rule pt-5">
-        <HBars rows={rows} max={100} unit="%" ticks={[0, 50, 100]} labelWidth={96} barH={20} ariaLabel="Trials solved, π0.5 alone and inside REA" />
+        <HBars rows={rows} max={100} unit="%" ticks={[0, 50, 100]} labelWidth={96} barH={20} axisInside ariaLabel="Trials solved, π0.5 alone and inside REA" />
       </div>
+      <div className="flex-[1_1_0px]" />
     </ChartFrame>
   );
 }

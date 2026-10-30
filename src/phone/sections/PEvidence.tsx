@@ -90,23 +90,10 @@ function ResultCard({ b }: { b: Card }) {
 export function PRobots() {
   return (
     <section id="embodiments" className="relative pb-12">
-      <StopSign id="embodiments" lede="The same three-level contract drives a real Unitree G1 humanoid and two more simulators." />
+      <StopSign id="embodiments" lede="The same three-level contract drives two more simulators and a real Unitree G1 humanoid." />
 
+      {/* the simulators first, then the real robot, next to the ALOHA stop's real arm */}
       <div className="mt-9 px-5">
-        <PartSign kicker={<><LineBadge line="s0" size={11} /> Real robot</>} title="A Unitree G1 walks to a chair and pushes it" />
-        <p className="mt-3 text-[16px] leading-[1.6] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
-          Every method gets the same robot, model and four policies: walk forward, the native two-arm push, release, stop. REA succeeded in <b>8 of 10</b>{' '}
-          trials, against 5 for an Agents SDK agent, 4 for Codex and 2 for ASPIRE's code-as-policy.
-        </p>
-        <div className="mt-5">
-          <G1Pair />
-        </div>
-        <div className="mt-4">
-          <Latency />
-        </div>
-      </div>
-
-      <div className="mt-14 px-5">
         <PartSign kicker={<><LineBadge line="s0" size={11} /> Simulators</>} title="The same runtime on two more simulators" />
         <p className="mt-3 text-[16px] leading-[1.6] text-ink-2">
           On RoboTwin 2.0 a fast reflex model is the System 0 policy, and the router hands single decisions to a deliberate model.
@@ -120,6 +107,20 @@ export function PRobots() {
         </p>
         <div className="mt-5">
           <Behavior />
+        </div>
+      </div>
+
+      <div className="mt-14 px-5">
+        <PartSign kicker={<><LineBadge line="s0" size={11} /> Real robot</>} title="A Unitree G1 walks to a chair and pushes it" />
+        <p className="mt-3 text-[16px] leading-[1.6] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
+          Every method gets the same robot, model and four policies: walk forward, the native two-arm push, release, stop. REA succeeded in <b>8 of 10</b>{' '}
+          trials, against 5 for an Agents SDK agent, 4 for Codex and 2 for ASPIRE's code-as-policy.
+        </p>
+        <div className="mt-5">
+          <G1Pair />
+        </div>
+        <div className="mt-4">
+          <Latency />
         </div>
       </div>
     </section>

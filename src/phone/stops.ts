@@ -15,7 +15,7 @@ export const P_STOPS: PStopInfo[] = [
   { id: 'runtime', name: 'Runtime', title: 'Three lines, one contract', note: 'Brain, router, policies', line: 's1' },
   { id: 'episodes', name: 'Episodes', title: 'Ride a real episode', note: 'Seven test episodes, from the router’s log', line: 's1' },
   { id: 'results', name: 'Results', title: 'The most solved, on every line', note: 'Two simulators, two real robots', line: 's1' },
-  { id: 'embodiments', name: 'Embodiments', title: 'One runtime, real and simulated', note: 'A Unitree G1, RoboTwin 2.0, BEHAVIOR-1K', line: 's0' },
+  { id: 'embodiments', name: 'Embodiments', title: 'One runtime, simulated and real', note: 'RoboTwin 2.0, BEHAVIOR-1K, a Unitree G1', line: 's0' },
   { id: 'aloha', name: 'ALOHA', title: 'Out of simulation, onto a real arm', note: 'Four agents and π0.5 on one arm', line: 's0' },
   { id: 'demo', name: 'Demo', title: 'Watch REA run', note: 'The robot demo, 1 min 47 s', line: 's0' },
   { id: 'cite', name: 'Cite', title: 'Take a ticket', note: 'BibTeX, one tap', line: 's1' },

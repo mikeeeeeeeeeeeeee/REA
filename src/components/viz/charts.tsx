@@ -140,6 +140,7 @@ export function HBars({
   barH = 20,
   rowGap = 12,
   decimals = 1,
+  axisInside = false,
   ariaLabel,
 }: {
   rows: BarRow[];
@@ -150,6 +151,8 @@ export function HBars({
   barH?: number;
   rowGap?: number;
   decimals?: number;
+  /** keep the axis labels inside the chart's own box (by default they hang 22 px below it) */
+  axisInside?: boolean;
   ariaLabel: string;
 }) {
   const [ref, seen] = useSeenOnce<HTMLDivElement>(0.25);
@@ -174,8 +177,8 @@ export function HBars({
         {/* grid */}
         <div className="pointer-events-none absolute bottom-0 top-0" style={{ left: labelWidth, right: 56 }}>
           {tickList.map((tk) => (
-            <div key={tk} className="absolute bottom-[-22px] top-0 w-px bg-rule" style={{ left: `${(tk / max) * 100}%` }}>
-              <span className="tabular absolute bottom-0 left-1/2 -translate-x-1/2 text-[11.5px] text-ink-4">
+            <div key={tk} className={`absolute top-0 w-px bg-rule ${axisInside ? 'bottom-[18px]' : 'bottom-[-22px]'}`} style={{ left: `${(tk / max) * 100}%` }}>
+              <span className={`tabular absolute left-1/2 -translate-x-1/2 text-[11.5px] text-ink-4 ${axisInside ? 'bottom-[-18px]' : 'bottom-0'}`}>
                 {tk}
                 {unit}
               </span>

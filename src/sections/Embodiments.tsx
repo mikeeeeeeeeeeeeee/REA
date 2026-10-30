@@ -22,12 +22,35 @@ export default function Embodiments() {
     <section id="embodiments" className="relative scroll-mt-20 py-24 sm:py-32">
       <Container wide>
         <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-end">
-          <SectionTitle>One runtime, real and simulated</SectionTitle>
-          <p className="lede">The same three-level contract drives a real Unitree G1 humanoid and two more simulators.</p>
+          <SectionTitle>One runtime, simulated and real</SectionTitle>
+          <p className="lede">The same three-level contract drives two more simulators and a real Unitree G1 humanoid.</p>
         </div>
 
-        {/* the real robot, laid out like the simulators below: a heading row, then the video and the latency chart side by side, one height */}
+        {/* the simulators first: a heading row, then the RoboTwin video and the BEHAVIOR-1K table side by side */}
         <div className="mt-14 grid gap-x-12 gap-y-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-end">
+          <div>
+            <p className="flex items-center gap-2 text-[14px] font-[700] text-ink-3 [font-stretch:92%]">
+              <LineBadge line="s0" size={12} /> Simulators
+            </p>
+            <h3 className="sign-lg title-part mt-2.5 text-ink">The same runtime on two more simulators</h3>
+          </div>
+          <div className="space-y-3 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
+            <p>
+              On RoboTwin 2.0 a fast reflex model is the System 0 policy, and the router hands single decisions to a deliberate model.
+            </p>
+            <p>
+              On BEHAVIOR-1K, a mobile R1Pro starts metres from the object it has to find and pick up; REA ran with the same tools, model and 1,500 s
+              budget as an online agent.
+            </p>
+          </div>
+        </div>
+        <div className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+          <RoboTwinVideo />
+          <BehaviorGrid />
+        </div>
+
+        {/* then the real robot, beside the ALOHA section that follows: laid out like the simulators, a heading row, then the video and the latency chart side by side, one height */}
+        <div className="mt-24 grid gap-x-12 gap-y-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-end">
           <div>
             <p className="flex items-center gap-2 text-[14px] font-[700] text-ink-3 [font-stretch:92%]">
               <LineBadge line="s0" size={12} /> Real robot
@@ -48,29 +71,6 @@ export default function Embodiments() {
         <div className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
           <G1Player />
           <LatencyChart />
-        </div>
-
-        {/* the two simulators: a heading row, then the RoboTwin video and the BEHAVIOR-1K table side by side */}
-        <div className="mt-24 grid gap-x-12 gap-y-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-end">
-          <div>
-            <p className="flex items-center gap-2 text-[14px] font-[700] text-ink-3 [font-stretch:92%]">
-              <LineBadge line="s0" size={12} /> Simulators
-            </p>
-            <h3 className="sign-lg title-part mt-2.5 text-ink">The same runtime on two more simulators</h3>
-          </div>
-          <div className="space-y-3 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
-            <p>
-              On RoboTwin 2.0 a fast reflex model is the System 0 policy, and the router hands single decisions to a deliberate model.
-            </p>
-            <p>
-              On BEHAVIOR-1K, a mobile R1Pro starts metres from the object it has to find and pick up; REA ran with the same tools, model and 1,500 s
-              budget as an online agent.
-            </p>
-          </div>
-        </div>
-        <div className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-          <RoboTwinVideo />
-          <BehaviorGrid />
         </div>
       </Container>
     </section>
