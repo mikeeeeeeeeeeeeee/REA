@@ -29,6 +29,20 @@ Any static host works as well: run `npm run build` and upload the contents of `d
 
 Asset paths are relative (`base: './'`), so the same build works at a sub-path or on a custom domain.
 
+## Phone layout
+
+Phones get a layout of their own (`src/phone/`), not the desktop page shrunk: the page is a line with stops (the bar at
+the top shows the stop and the whole line, and opens the list of stops), and figures that sit side by side on the
+desktop page become cards to swipe, with a segmented control to jump. It reuses the desktop page's data and most of its
+figures; the timelines, the G1 cameras, the result bars and the BEHAVIOR-1K table are drawn again for a phone.
+
+- Which layout: `?view=phone` / `?view=desktop` choose one and remember it; otherwise a phone's browser (by its user
+  agent) or a window narrower than 640 px gets the phone layout (`src/phone/mode.ts`). Each layout is its own chunk.
+- The switch: the desktop nav has a **Phone** button; the phone layout's stop list and footer have **Desktop page**.
+  Switching keeps the section being read.
+- On a computer the phone layout opens in a phone-sized frame (`src/phone/PhonePreview.tsx`, an iframe of
+  `?view=phone&frame=1`), so its figures lay themselves out at a phone's width, exactly as on a phone.
+
 ## Where the content lives
 
 | What | File |

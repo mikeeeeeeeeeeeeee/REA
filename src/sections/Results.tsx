@@ -8,15 +8,15 @@ import { ALOHA_RUNS, METHODS } from '@/data/aloha';
  * paper's Figure 7 (BEHAVIOR-1K, RoboTwin 2.0, the real Unitree G1) and the team's newest real-robot
  * study (four agents on an AlohaMini2 arm, October 2026, not yet in the paper).
  */
-const pct = (k: number, n: number) => (100 * k) / n;
-const ci = (k: number, n: number): [number, number] => {
+export const pct = (k: number, n: number) => (100 * k) / n;
+export const ci = (k: number, n: number): [number, number] => {
   const [a, b] = wilson(k, n);
   return [100 * a, 100 * b];
 };
 
-type Card = { key: string; bench: string; detail: string; n: number; real?: boolean; rows: { key: string; label: string; k: number | null }[] };
+export type Card = { key: string; bench: string; detail: string; n: number; real?: boolean; rows: { key: string; label: string; k: number | null }[] };
 
-const CARDS: Card[] = [
+export const CARDS: Card[] = [
   ...PORTABILITY.map((b) => ({ ...b, real: b.key === 'g1' })),
   {
     key: 'aloha',

@@ -26,25 +26,28 @@ export default function Embodiments() {
           <p className="lede">The same three-level contract drives a real Unitree G1 humanoid and two more simulators.</p>
         </div>
 
-        <div className="mt-14 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        {/* the real robot, laid out like the simulators below: a heading row, then the video and the latency chart side by side, one height */}
+        <div className="mt-14 grid gap-x-12 gap-y-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-end">
           <div>
             <p className="flex items-center gap-2 text-[14px] font-[700] text-ink-3 [font-stretch:92%]">
               <LineBadge line="s0" size={12} /> Real robot
             </p>
             <h3 className="sign-lg title-part mt-2.5 text-ink">A Unitree G1 walks to a chair and pushes it</h3>
-            <div className="mt-4 space-y-3 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
-              <p>
-                Every method gets the same robot, model and four policies: walk forward, the native two-arm push, release, stop. REA succeeded in{' '}
-                <b>8 of 10</b> trials, against 5 for an Agents SDK agent, 4 for Codex and 2 for ASPIRE's code-as-policy.
-              </p>
-              <p>
-                A separate service on the robot, without the router, computes brain decisions ahead of the request: one returns in <b>1.0 to 3.6 ms</b>{' '}
-                instead of about 5 s.
-              </p>
-            </div>
-            <LatencyChart />
           </div>
+          <div className="space-y-3 text-[17px] leading-[1.65] text-ink-2 [&_b]:font-[680] [&_b]:text-ink">
+            <p>
+              Every method gets the same robot, model and four policies: walk forward, the native two-arm push, release, stop. REA succeeded in{' '}
+              <b>8 of 10</b> trials, against 5 for an Agents SDK agent, 4 for Codex and 2 for ASPIRE's code-as-policy.
+            </p>
+            <p>
+              A separate service on the robot, without the router, computes brain decisions ahead of the request: one returns in <b>1.0 to 3.6 ms</b>{' '}
+              instead of about 5 s.
+            </p>
+          </div>
+        </div>
+        <div className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
           <G1Player />
+          <LatencyChart />
         </div>
 
         {/* the two simulators: a heading row, then the RoboTwin video and the BEHAVIOR-1K table side by side */}
@@ -74,40 +77,87 @@ export default function Embodiments() {
   );
 }
 
+/** decades of the log axis, 1 ms .. 5 s */
+const LAT_TICKS = [
+  { v: 0.001, label: '1 ms' },
+  { v: 0.01, label: '10 ms' },
+  { v: 0.1, label: '100 ms' },
+  { v: 1, label: '1 s' },
+];
+const LAT_LABEL = 132; // the stage column
+const LAT_VALUE = 72; // room right of the longest bar for its value
+
 function LatencyChart() {
   const [ref, seen] = useSeenOnce<HTMLDivElement>(0.4);
-  const log = (v: number) => (Math.log10(v) + 3) / (Math.log10(5) + 3); // 1 ms .. 5 s
+  const at = (v: number) => (Math.log10(v) + 3) / (Math.log10(5) + 3); // 1 ms .. 5 s on 0..1
+  const track = { left: LAT_LABEL + 12, right: LAT_VALUE } as const;
   return (
-    <div ref={ref} className="mt-7 rounded-2xl border border-rule bg-surface p-5">
-      <p className="text-[13.5px] font-[700] text-ink [font-stretch:92%]">G1 request latency, medians over 5-8 trials (log scale)</p>
-      <ul className="mt-4 space-y-3">
-        {G1_LATENCY.map((g, i) => (
-          <li key={g.stage} className="grid grid-cols-[132px_minmax(0,1fr)] items-center gap-3">
-            <span className={`text-right text-[13px] ${i === 3 ? 'font-[720] text-ink' : 'text-ink-2'}`}>{g.stage}</span>
-            <div className="flex items-center gap-2">
-              <motion.span
-                className="block h-[14px] origin-left rounded-r-[4px]"
-                style={{ width: `${log(g.value) * 78}%`, background: i === 3 ? 'var(--s1)' : 'var(--base-2)' }}
-                initial={{ scaleX: 0 }}
-                animate={seen ? { scaleX: 1 } : {}}
-                transition={{ duration: 0.9, delay: 0.08 * i, ease: [0.22, 1, 0.36, 1] }}
-              />
-              <span className={`tabular whitespace-nowrap text-[13px] ${i === 3 ? 'font-[760] text-ink' : 'text-ink-2'}`}>{g.latency}</span>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ChartFrame
+      fill
+      title="G1 request latency"
+      sub="medians over 5–8 trials on the robot's Jetson, log scale"
+      table={{ head: ['Stage', 'Median latency'], rows: G1_LATENCY.map((g) => [g.stage, g.latency]) }}
+    >
+      <div ref={ref} className="relative flex flex-1 flex-col">
+        {/* decade grid, behind the bars */}
+        <div className="pointer-events-none absolute bottom-[26px] top-0" style={track}>
+          {LAT_TICKS.map((t) => (
+            <span key={t.label} className="absolute bottom-0 top-0 w-px bg-rule" style={{ left: `${at(t.v) * 100}%` }} />
+          ))}
+        </div>
+        <ul className="relative flex flex-1 flex-col justify-around gap-4 py-1">
+          {G1_LATENCY.map((g, i) => {
+            const w = at(g.value);
+            const ours = i === G1_LATENCY.length - 1;
+            return (
+              <li key={g.stage} className="grid items-center gap-3" style={{ gridTemplateColumns: `${LAT_LABEL}px minmax(0,1fr)` }}>
+                <span className={`text-right text-[13.5px] leading-tight ${ours ? 'font-[720] text-ink' : 'text-ink-2'}`}>{g.stage}</span>
+                <div className="relative h-[20px]" style={{ marginRight: LAT_VALUE }}>
+                  <motion.span
+                    className="absolute inset-y-0 left-0 block origin-left rounded-r-[4px]"
+                    style={{ width: `${w * 100}%`, background: ours ? 'var(--s1)' : 'var(--base-2)' }}
+                    initial={{ scaleX: 0 }}
+                    animate={seen ? { scaleX: 1 } : {}}
+                    transition={{ duration: 0.9, delay: 0.08 * i, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                  <motion.span
+                    className={`tabular absolute top-1/2 -translate-y-1/2 whitespace-nowrap pl-2 text-[13px] ${ours ? 'font-[760] text-ink' : 'font-[600] text-ink-2'}`}
+                    style={{ left: `${w * 100}%` }}
+                    initial={{ opacity: 0 }}
+                    animate={seen ? { opacity: 1 } : {}}
+                    transition={{ delay: 0.5 + 0.08 * i }}
+                  >
+                    {g.latency}
+                  </motion.span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="relative mt-2 h-[18px]" style={track}>
+          {LAT_TICKS.map((t, i) => (
+            <span
+              key={t.label}
+              className={`tabular absolute top-0 whitespace-nowrap text-[11.5px] text-ink-4 ${i === 0 ? '' : '-translate-x-1/2'}`}
+              style={{ left: `${at(t.v) * 100}%` }}
+            >
+              {t.label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </ChartFrame>
   );
 }
 
-type G1Clock = { duration: number; push: number; front: number[]; side: number[] };
+export type G1Clock = { duration: number; push: number; cut: Record<string, number>; front: number[]; side: number[] };
 /** the trial plays sped up: in real time its two small steps and the push are slow to watch */
-const G1_SPEED = 2;
+export const G1_SPEED = 2;
 
 /**
- * REA's Unitree G1 trial, filmed by two external cameras (the videos behind the paper's Figure 13), both at 2x
- * speed: the side camera follows the front one's clock, so the push lands in both at once. The slider seeks both.
+ * REA on the Unitree G1, from a front and a side camera (the videos behind the paper's Figure 13), both at 2x speed.
+ * Each clip is cut around its own push (tools/page_videos.py), so the two pushes land at the same moment; they share
+ * one clock, and the slider seeks both.
  */
 function G1Player() {
   const reduce = useReducedMotion();
@@ -128,7 +178,7 @@ function G1Player() {
     else vs.forEach((v) => v.pause());
   }, [near, playing]);
 
-  // the front camera is the clock; the side one is pulled back into step whenever it drifts
+  // the front clip is the clock; the side one is pulled back whenever it drifts
   useEffect(() => {
     if (!near) return;
     let raf = 0;
@@ -172,7 +222,7 @@ function G1Player() {
     />
   );
   return (
-    <div ref={ref} className="figure-frame overflow-hidden">
+    <div ref={ref} className="figure-frame flex flex-col overflow-hidden">
       {/* the two cameras side by side at one height: the columns are in the ratio of the videos' aspect ratios */}
       <div className="grid gap-px bg-rule" style={{ gridTemplateColumns: `minmax(0, ${fw / fh}fr) minmax(0, ${sw / sh}fr)` }}>
         <div className="relative overflow-hidden bg-[#0b0e14]" style={{ aspectRatio: `${fw} / ${fh}` }}>
@@ -187,7 +237,7 @@ function G1Player() {
           </span>
         </div>
       </div>
-      <div className="border-t border-rule px-5 pb-5 pt-4">
+      <div className="mt-auto border-t border-rule px-5 pb-5 pt-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -214,7 +264,7 @@ function G1Player() {
             />
           </div>
         </div>
-        <p className="mt-3 text-[13px] leading-snug text-ink-3">One of REA's successful trials, filmed by two external cameras; both play at {G1_SPEED}× speed and in step, the times are the trial's own.</p>
+        <p className="mt-3 text-[13px] leading-snug text-ink-3">REA on the G1, seen by a front and a side camera. Each clip is cut around the two-arm push and plays at {G1_SPEED}× speed.</p>
       </div>
     </div>
   );
@@ -227,7 +277,7 @@ type Clock = { per: number; hold: number; n: number; duration: number; routes: s
  * ticker of the decisions, coloured by who made each one (the fast reflex model, System 0, or the
  * deliberate model, System 2), follows the video's clock.
  */
-function RoboTwinVideo() {
+export function RoboTwinVideo() {
   const { t, theme } = useTheme();
   const reduce = useReducedMotion();
   const [scene, setScene] = useState(2);
@@ -235,7 +285,15 @@ function RoboTwinVideo() {
   const clock = (CLOCKS as unknown as Record<string, Clock>)[`robotwin-${sc.id}`];
   const [ref, near] = useNearViewport<HTMLDivElement>('200px');
   const video = useRef<HTMLVideoElement>(null);
+  const chips = useRef<HTMLDivElement>(null);
   const [k, setK] = useState(0);
+
+  // on a narrow screen the scene chips scroll sideways: start with the chosen one in view (sideways only)
+  useEffect(() => {
+    const row = chips.current;
+    const on = row?.querySelector<HTMLElement>('[data-on="true"]');
+    if (row && on && row.scrollWidth > row.clientWidth) row.scrollLeft = Math.max(0, on.offsetLeft - 20);
+  }, []);
 
   useEffect(() => {
     const el = video.current;
@@ -261,7 +319,7 @@ function RoboTwinVideo() {
   const deliberate = route === 'deliberate';
   return (
     <div ref={ref} className="figure-frame flex flex-col overflow-hidden">
-      <div className="border-b border-rule px-5 py-4">
+      <div ref={chips} className="relative overflow-x-auto border-b border-rule px-5 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <JellyRadio
           items={ROBOTWIN.map((r, i) => ({ value: String(i), label: r.title.replace(' (randomized scene)', '') }))}
           value={String(scene)}

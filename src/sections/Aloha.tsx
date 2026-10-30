@@ -51,7 +51,7 @@ type EndClock = { lapse: number; reveal: number[]; duration: number; tile: numbe
  * the box, as one sped-up video: the head camera's photos as a time-lapse, then the wrist camera's last
  * photo. The page writes the names and the operator's verdicts on top, on the video's clock.
  */
-function EndingsVideo() {
+export function EndingsVideo() {
   const reduce = useReducedMotion();
   const clock = (CLOCKS as unknown as Record<string, EndClock>)['aloha-endings'];
   const [ref, near] = useNearViewport<HTMLDivElement>('200px');
@@ -139,7 +139,7 @@ function EndingsVideo() {
 }
 
 /** the task as the external camera saw it before REA's trial 09, and the protocol every agent ran under */
-function SetupCard() {
+export function SetupCard() {
   return (
     <figure className="figure-frame flex flex-1 flex-col overflow-hidden">
       <div className="relative aspect-[16/7] bg-[#0b0e14] xl:aspect-auto xl:min-h-[120px] xl:flex-1">
@@ -164,7 +164,7 @@ const METRICS: Record<MetricKey, { tab: string; short: string; note: string }> =
 };
 
 /** the four agents on three measures, each of which REA leads */
-function AlohaMetrics() {
+export function AlohaMetrics() {
   const { t, theme } = useTheme();
   const [m, setM] = useState<MetricKey>('solved');
   // the long tabs need the card wide: full width when stacked (640–1279 px), or the right column at 1440 px and up
@@ -237,7 +237,7 @@ function Pi05Study() {
 }
 
 /** trial 03 of both groups, the two clips locked together on the moment the gripper opens */
-function ReleasePair() {
+export function ReleasePair() {
   const reduce = useReducedMotion();
   const [nearRef, near] = useNearViewport<HTMLDivElement>('400px');
   const [viewRef, inView] = useInView<HTMLDivElement>(0.5);
@@ -384,7 +384,7 @@ function Stat({ label, from, to, of }: { label: string; from: number; to: number
 }
 
 /** both groups' ten trials, in two numbers each: solved, and failed at placement */
-function Pi05Card() {
+export function Pi05Card() {
   const count = (r: (typeof PI05_RUNS)[number], v: Verdict) => r.trials.filter(([, x]) => x === v).length;
   const [pi, rea] = PI05_RUNS;
   const rows: BarRow[] = PI05_RUNS.map((r) => {

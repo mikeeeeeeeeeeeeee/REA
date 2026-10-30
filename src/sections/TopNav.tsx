@@ -3,9 +3,10 @@ import { AnimatePresence, motion } from 'motion/react';
 import RubberSegment from '@/components/reactbits/RubberSegment/RubberSegment';
 import Icon from '@/components/ui/Icon';
 import { BrandMark } from '@/components/ui/Line';
-import { Menu01Icon, Cancel01Icon, Moon02Icon, Sun03Icon } from '@hugeicons/core-free-icons';
+import { Menu01Icon, Cancel01Icon, Moon02Icon, SmartPhone01Icon, Sun03Icon } from '@hugeicons/core-free-icons';
 import { useTheme } from '@/theme/ThemeProvider';
 import { scrollToId, useMediaQuery } from '@/lib/hooks';
+import { switchView } from '@/phone/mode';
 
 /**
  * Navigation as a line strip, like the route diagram above a train door: one station per
@@ -165,6 +166,19 @@ export default function TopNav() {
           )}
 
           <div className="flex shrink-0 items-center gap-2">
+            {/* the way to the phone layout (phones open it by themselves) */}
+            {wide && (
+              <button
+                type="button"
+                onClick={() => switchView('phone')}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-rule bg-surface px-2.5 text-[13px] font-[650] text-ink-2 transition-colors [font-stretch:92%] hover:border-rule-2 hover:text-ink xl:px-3"
+                aria-label="Open the phone layout"
+                title="Open the phone layout"
+              >
+                <Icon icon={SmartPhone01Icon} size={16} stroke={1.8} />
+                <span className="hidden xl:inline">Phone</span>
+              </button>
+            )}
             <RubberSegment
               items={[
                 { value: 'light', label: <Icon icon={Sun03Icon} size={16} />, icon: undefined },
@@ -221,6 +235,14 @@ export default function TopNav() {
                 );
               })}
             </ol>
+            <button
+              type="button"
+              onClick={() => switchView('phone')}
+              className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-full border border-rule text-[14.5px] font-[700] text-ink"
+            >
+              <Icon icon={SmartPhone01Icon} size={17} stroke={1.8} />
+              Open the phone layout
+            </button>
           </motion.nav>
         )}
       </AnimatePresence>

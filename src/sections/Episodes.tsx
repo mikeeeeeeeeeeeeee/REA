@@ -9,7 +9,7 @@ import { nameOf } from '@/lib/episode';
  * More real journeys: every test episode below was logged by the judge-gated router,
  * one per kind of trip, from the common one-stop case to the full ladder.
  */
-const ORDER = ['wine-rack-25', 'bbq-2', 'stove-23', 'tomato-2', 'bowl-cabinet-2', 'butter-21'];
+export const ORDER = ['wine-rack-25', 'bbq-2', 'stove-23', 'tomato-2', 'bowl-cabinet-2', 'butter-21'];
 
 export default function Episodes() {
   const list = ORDER.map((id) => EPISODES.find((e) => e.id === id)!).filter(Boolean);

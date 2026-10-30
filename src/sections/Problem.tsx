@@ -6,12 +6,12 @@ import { Container, SectionTitle } from '@/components/ui/Layout';
 import { useTheme } from '@/theme/ThemeProvider';
 
 /** row C's two strips: REA in sync mode (the judge at each return) and in async mode (the brain in parallel) */
-const REA_MODES: { mode: CouplingMode; label: string }[] = [
+export const REA_MODES: { mode: CouplingMode; label: string }[] = [
   { mode: 'rea', label: 'Sync mode' },
   { mode: 'async', label: 'Async mode' },
 ];
 
-type Row = {
+export type Row = {
   mode: CouplingMode;
   code: string;
   title: string;
@@ -21,7 +21,7 @@ type Row = {
   stat: React.ReactNode;
 };
 
-const ROWS: Row[] = [
+export const ROWS: Row[] = [
   {
     mode: 'agent',
     code: 'A',

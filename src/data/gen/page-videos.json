@@ -253,8 +253,12 @@
   ]
  },
  "g1": {
-  "duration": 11.6,
-  "push": 6.5,
+  "duration": 9.0,
+  "push": 4.0,
+  "cut": {
+   "front": 3.0,
+   "side": 27.0
+  },
   "front": [
    540,
    960

@@ -11,16 +11,16 @@ import { seg, useLoopClock } from '@/lib/anim';
  */
 export type CouplingMode = 'agent' | 'policy' | 'rea' | 'async';
 
-type Lane = 's2' | 's1' | 's0';
-type Block = { lane: Lane; t0: number; t1: number; kind: 'agent' | 'policy' | 'wait' | 'judge' | 'missing' | 'next'; label?: string };
-type Mark = { lane: Lane; t: number; kind: 'error' | 'silent' | 'done' | 'not_done' | 'route' | 'escalate' | 'stop' | 'tick' | 'switch' | 'keep' | 'advice'; label: string; to?: number };
+export type Lane = 's2' | 's1' | 's0';
+export type Block = { lane: Lane; t0: number; t1: number; kind: 'agent' | 'policy' | 'wait' | 'judge' | 'missing' | 'next'; label?: string };
+export type Mark = { lane: Lane; t: number; kind: 'error' | 'silent' | 'done' | 'not_done' | 'route' | 'escalate' | 'stop' | 'tick' | 'switch' | 'keep' | 'advice'; label: string; to?: number };
 
-const T = 12;
+export const T = 12;
 const VW = 760;
 const X0 = 70;
 const X1 = 748;
 
-const DESIGNS: Record<CouplingMode, { lanes: Lane[]; blocks: Block[]; marks: Mark[] }> = {
+export const DESIGNS: Record<CouplingMode, { lanes: Lane[]; blocks: Block[]; marks: Mark[] }> = {
   agent: {
     lanes: ['s2', 's0'],
     blocks: [

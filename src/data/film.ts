@@ -69,7 +69,7 @@ export const lengthOf = (f: Film) => `${Math.floor(f.duration / 60)} min ${Math.
 export const chapterAt = (f: Film, t: number) => [...f.chapters].reverse().find((c) => t >= c.t) ?? f.chapters[0];
 
 /**
- * The robot demo (made in ../demo_film): REA on the real robots and the simulators, one H.264 file at 30 fps with
+ * The robot demo (made in ../demo_film): REA on the real robots and the simulators, one H.264 file at 60 fps with
  * English and Chinese subtitles burned in. Shown in its own section near the end of the page, apart from the film.
  */
 export const DEMO = {

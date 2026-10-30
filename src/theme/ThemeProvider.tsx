@@ -27,6 +27,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === KEY && (e.newValue === 'dark' || e.newValue === 'light')) setThemeState(e.newValue);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  useEffect(() => {
     const root = document.documentElement;
     root.classList.add('theme-switching');
     root.classList.toggle('dark', theme === 'dark');

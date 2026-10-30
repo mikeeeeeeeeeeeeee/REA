@@ -10,7 +10,7 @@ import { ROBOTWIN } from '@/data/gen/robotwin';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useNearViewport, useReducedMotion } from '@/lib/hooks';
 
-type Guide = {
+export type Guide = {
   line: LineId;
   role: string;
   what: string;
@@ -19,7 +19,7 @@ type Guide = {
   never: string;
 };
 
-const GUIDE: Guide[] = [
+export const GUIDE: Guide[] = [
   {
     line: 's2',
     role: 'The brain',
@@ -145,7 +145,7 @@ export default function Runtime() {
 }
 
 // simulators and robots are backends (neutral); tools run inside the policies (S0); policy-generation methods write them (S2)
-const BACKENDS: { name: string; role: string; color: string }[] = [
+export const BACKENDS: { name: string; role: string; color: string }[] = [
   { name: 'LIBERO-Pro', role: 'MuJoCo, robosuite', color: 'var(--ink-3)' },
   { name: 'BEHAVIOR-1K', role: 'OmniGibson, Isaac Sim', color: 'var(--ink-3)' },
   { name: 'RoboTwin 2.0', role: 'SAPIEN', color: 'var(--ink-3)' },
@@ -158,7 +158,7 @@ const BACKENDS: { name: string; role: string; color: string }[] = [
   { name: 'ASPIRE', role: 'Fix loop, Evo search', color: 'var(--s2)' },
 ];
 
-function GuideVisual({ line }: { line: LineId }) {
+export function GuideVisual({ line }: { line: LineId }) {
   if (line === 's0') return <PolicyFeed />;
   return (
     <div className="absolute inset-0">

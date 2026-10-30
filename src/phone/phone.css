@@ -1,0 +1,59 @@
+/* The phone layout (src/phone): the same tokens as the desktop page, laid out for a phone held upright. */
+
+/* the phone layout fills whatever width it has: a phone, a phone held sideways, or the preview's phone-sized frame */
+.p-shell {
+  min-height: 100vh;
+  background: var(--paper);
+}
+html[data-view='phone'] {
+  scroll-padding-top: 64px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* pressed state for everything tappable */
+.p-press {
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s ease, opacity 0.2s ease;
+}
+.p-press:active {
+  transform: scale(0.965);
+}
+
+/* horizontal rails that snap card by card; no scrollbar, the pager shows the place */
+.p-snap {
+  /* the cards measure their place from the rail, not from the section */
+  position: relative;
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.p-snap::-webkit-scrollbar {
+  display: none;
+}
+.p-snap > * {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  flex: none;
+}
+.p-snap.p-start > * {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* the route line that runs down beside each stop's sign */
+.p-rail {
+  background: linear-gradient(to bottom, var(--rail, var(--s0)) 0 70%, transparent);
+}
+
+@keyframes p-ping {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
