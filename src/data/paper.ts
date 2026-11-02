@@ -5,7 +5,7 @@
 export const LINKS = {
   arxiv: '', // e.g. 'https://arxiv.org/abs/26xx.xxxxx'
   pdf: '', // e.g. 'https://arxiv.org/pdf/26xx.xxxxx'
-  code: '', // e.g. 'https://github.com/<org>/rea'
+  code: 'https://github.com/InfRec-Cardinal/REA',
   video: '', // e.g. a YouTube / Bilibili link for the real-robot video
 };
 

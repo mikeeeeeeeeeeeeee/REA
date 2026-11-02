@@ -406,12 +406,14 @@ export function Pi05Card() {
         <Stat label="Solved" from={count(pi, 'success')} to={count(rea, 'success')} of={10} />
         <Stat label="Failed at placement" from={count(pi, 'place')} to={count(rea, 'place')} />
       </dl>
-      {/* the card's spare height goes above and below the bars, so the gap over the line matches the gap under the axis */}
-      <div className="min-h-3 flex-[1_1_20px]" />
-      <div className="border-t border-rule pt-5">
-        <HBars rows={rows} max={100} unit="%" ticks={[0, 50, 100]} labelWidth={96} barH={20} axisInside ariaLabel="Trials solved, π0.5 alone and inside REA" />
-      </div>
-      <div className="flex-[1_1_0px]" />
+      {/* the card's spare height: the line sits visually midway between the stats and the bars (the digits' boxes reach
+          10 px below their baseline, so less space over the line than under it), the rest under the axis; 25, 33 and
+          38 px when the card is stretched beside the video at 1440 px */}
+      <div className="flex-[1_0_16px]" />
+      <div className="shrink-0 border-t border-rule" />
+      <div className="flex-[1_0_23px]" />
+      <HBars rows={rows} max={100} unit="%" ticks={[0, 50, 100]} labelWidth={96} barH={20} axisInside ariaLabel="Trials solved, π0.5 alone and inside REA" />
+      <div className="flex-[2_0_0px]" />
     </ChartFrame>
   );
 }

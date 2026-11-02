@@ -66,19 +66,19 @@ export default function PHero() {
           <Icon icon={LINKS.arxiv ? File02Icon : PlayCircleIcon} size={18} stroke={1.9} />
           {LINKS.arxiv ? 'Read the paper' : 'Watch the robot demo'}
         </a>
-        <div className="grid grid-cols-3 gap-2">
+        {/* the film, the demo (once the main button reads the paper instead), the code, the citation */}
+        <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${LINKS.arxiv ? 4 : 3}, minmax(0, 1fr))` }}>
           <Pill onClick={() => goTo('film')} icon={FilmRoll01Icon}>
             Film
           </Pill>
-          {LINKS.arxiv ? (
+          {LINKS.arxiv && (
             <Pill onClick={() => goTo('demo')} icon={PlayCircleIcon}>
               Demo
             </Pill>
-          ) : (
-            <Pill href={LINKS.code} icon={GithubIcon}>
-              Code
-            </Pill>
           )}
+          <Pill href={LINKS.code} icon={GithubIcon}>
+            Code
+          </Pill>
           <Pill onClick={() => goTo('cite')} icon={QuoteDownIcon}>
             Cite
           </Pill>

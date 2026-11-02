@@ -60,8 +60,9 @@ figures; the timelines, the G1 cameras, the result bars and the BEHAVIOR-1K tabl
 | REA's Unitree G1 trial, front and side cameras in step (the videos behind the paper's Figure 13) | `public/g1/*` |
 | The page's videos and their clocks (for the overlays) | `../tools/page_videos.py [--only g1,robotwin,aloha]` → `public/robotwin/`, `public/aloha/endings.*`, `public/g1/`, `src/data/gen/page-videos.json` |
 
-Links that are not public yet (`arxiv`, `pdf`, `code`, `video` in `src/data/paper.ts`) are empty; the page then
-shows the button with a "soon" badge. Fill them in and push.
+The links are in `src/data/paper.ts` (`LINKS`). `code` points at <https://github.com/InfRec-Cardinal/REA>; the ones
+not public yet (`arxiv`, `pdf`, `video`) are empty, and the page then shows the button with a "soon" badge. Fill them
+in and push: with `arxiv` set, the hero's main button reads the paper and the robot demo gets a button of its own.
 
 `src/data/gen/` and `src/assets/` were generated from the raw run records (test episodes of the judge-gated
 router on LIBERO-Pro, RoboTwin 2.0 decisions, BEHAVIOR-1K and Unitree G1 frames) by a script that lives with those
