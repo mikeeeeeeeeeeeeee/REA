@@ -50,24 +50,44 @@ export default function PHero() {
       </p>
 
       <div className="rise-in mt-6 space-y-2.5" style={{ animationDelay: '0.48s' }}>
-        <a
-          href={LINKS.arxiv || '#demo'}
-          target={LINKS.arxiv ? '_blank' : undefined}
-          rel="noreferrer"
-          onClick={(e) => {
-            if (!LINKS.arxiv) {
-              // until the paper is public, the main button plays the robot demo
-              e.preventDefault();
-              goTo('demo');
-            }
-          }}
-          className="p-press flex h-12 w-full items-center justify-center gap-2 rounded-full bg-ink text-[16px] font-[700] text-paper [font-stretch:94%]"
-        >
-          <Icon icon={LINKS.arxiv ? File02Icon : PlayCircleIcon} size={18} stroke={1.9} />
-          {LINKS.arxiv ? 'Read the paper' : 'Watch the robot demo'}
-        </a>
-        {/* the film, the demo (once the main button reads the paper instead), the code, the citation */}
+        {/* the paper, and its Hugging Face page beside it */}
+        <div className="flex gap-2">
+          <a
+            href={LINKS.arxiv || '#demo'}
+            target={LINKS.arxiv ? '_blank' : undefined}
+            rel="noreferrer"
+            onClick={(e) => {
+              if (!LINKS.arxiv) {
+                // until the paper is public, the main button plays the robot demo
+                e.preventDefault();
+                goTo('demo');
+              }
+            }}
+            className="p-press flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-ink text-[16px] font-[700] text-paper [font-stretch:94%]"
+          >
+            <Icon icon={LINKS.arxiv ? File02Icon : PlayCircleIcon} size={18} stroke={1.9} />
+            {LINKS.arxiv ? 'Read the paper' : 'Watch the robot demo'}
+          </a>
+          {LINKS.hf && (
+            <a
+              href={LINKS.hf}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="The paper on Hugging Face"
+              className="p-press flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-full border-[1.5px] border-ink/15 px-4 text-[15px] font-[680] text-ink [font-stretch:94%]"
+            >
+              <span aria-hidden className="text-[18px] leading-none">
+                🤗
+              </span>
+              HF
+            </a>
+          )}
+        </div>
+        {/* the code, the film, the demo (once the main button reads the paper instead), the citation */}
         <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${LINKS.arxiv ? 4 : 3}, minmax(0, 1fr))` }}>
+          <Pill href={LINKS.code} icon={GithubIcon}>
+            Code
+          </Pill>
           <Pill onClick={() => goTo('film')} icon={FilmRoll01Icon}>
             Film
           </Pill>
@@ -76,9 +96,6 @@ export default function PHero() {
               Demo
             </Pill>
           )}
-          <Pill href={LINKS.code} icon={GithubIcon}>
-            Code
-          </Pill>
           <Pill onClick={() => goTo('cite')} icon={QuoteDownIcon}>
             Cite
           </Pill>

@@ -3,8 +3,9 @@
  * as "soon" instead of a dead link. Fill them in and rebuild.
  */
 export const LINKS = {
-  arxiv: '', // e.g. 'https://arxiv.org/abs/26xx.xxxxx'
-  pdf: '', // e.g. 'https://arxiv.org/pdf/26xx.xxxxx'
+  arxiv: 'https://arxiv.org/abs/2610.42053',
+  pdf: 'https://arxiv.org/pdf/2610.42053',
+  hf: 'https://huggingface.co/papers/2610.42053', // the paper's Hugging Face page
   code: 'https://github.com/InfRec-Cardinal/REA',
   video: '', // e.g. a YouTube / Bilibili link for the real-robot video
 };
@@ -53,6 +54,6 @@ export const BIBTEX = `@article{zhou2026rea,
   author  = {Zhou, Pengfei and Ma, Yixing and Zhang, Zhengfeiyang and
              Chen, Haoyuan and Wan, Zhenglin and Wang, Hexin and
              Zhao, Wangbo and You, Yang},
-  journal = {arXiv preprint},
+  journal = {arXiv preprint arXiv:2610.42053},
   year    = {2026}
 }`;

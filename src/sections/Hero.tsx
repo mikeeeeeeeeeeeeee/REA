@@ -146,11 +146,17 @@ export default function Hero() {
                   </a>
                 </GlareHover>
               </Magnet>
-              <Pill href="#film" onClick={() => scrollToId('film')} icon={<Icon icon={FilmRoll01Icon} size={17} />}>
-                Watch the film
-              </Pill>
+              {/* the paper's two pages, the code, the two films, the citation */}
+              {LINKS.hf && (
+                <Pill href={LINKS.hf} icon={<span aria-hidden className="text-[17px] leading-none">🤗</span>}>
+                  Hugging Face
+                </Pill>
+              )}
               <Pill href={LINKS.code} icon={<Icon icon={GithubIcon} size={17} />}>
                 Code
+              </Pill>
+              <Pill href="#film" onClick={() => scrollToId('film')} icon={<Icon icon={FilmRoll01Icon} size={17} />}>
+                Watch the film
               </Pill>
               {LINKS.arxiv && (
                 <Pill href="#demo" onClick={() => scrollToId('demo')} icon={<Icon icon={PlayCircleIcon} size={17} />}>
